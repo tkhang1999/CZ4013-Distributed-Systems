@@ -21,8 +21,7 @@ public class Client {
         InetAddress address = InetAddress.getByName("localhost");    //IP address of server
         byte[] buffer = null;
 
-        while (true)
-        {
+        while (true) {
             String input = sc.nextLine();
 
             // convert the input into the Request object.
@@ -57,5 +56,8 @@ public class Client {
             System.out.println("response id: " + response.id + ", response status: " + response.status 
                 + ", response content: " + response.content);
         }
+
+        sc.close();
+        socket.close();
     }
 }

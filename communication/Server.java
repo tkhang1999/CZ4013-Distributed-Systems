@@ -18,8 +18,7 @@ public class Server {
         DatagramPacket receivePacket = null;
         DatagramPacket replyPacket = null;
 
-        while (true)
-        {
+        while (true) {
             byte[] buffer = new byte[512];
 
             // Step 2 : create a DatgramPacket to receive the data.
@@ -50,5 +49,7 @@ public class Server {
             replyPacket = new DatagramPacket(buffer, buffer.length, clientAddress, clientPort);
             socket.send(replyPacket);            
         }
+
+        socket.close();
     }
 }
