@@ -30,9 +30,8 @@ public class Server {
 
             // String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
             Request request = (Request) Marshaller.unmarshal(receivePacket.getData(), new Request());
-            System.out.println(request.content);
             System.out.println("request id: " + request.id + ", request method: " + request.method 
-                + ", request content: " + request.content);
+                + ", request content: " + Arrays.toString(request.content));
 
             // exit the server if the client sends "bye"
             if (request.method.equals("end"))

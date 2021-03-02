@@ -3,11 +3,11 @@ package communication;
 public class Request {
     public Integer id;
     public String method;
-    public float content;
+    public float[] content;
 
     public Request() {}
 
-    public Request(Integer id, String method, float content) {
+    public Request(Integer id, String method, float[] content) {
         this.id = id;
         this.method = method;
         this.content = content;

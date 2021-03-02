@@ -36,6 +36,9 @@ public class Marshaller {
                     case "int[]":
                         appendMessage(message, (int[]) o);
                         break;
+                    case "float[]":
+                        appendMessage(message, (float[]) o);
+                        break;
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -79,6 +82,11 @@ public class Marshaller {
                     int[] intArrValue = unmarshalIntArray(b, ptr, ptr + sourceLength);
                     ptr += sourceLength;
                     set(obj, field.getName(), intArrValue);
+                    break;
+                case "float[]":
+                    float[] floatArrValue = unmarshalFloatArray(b, ptr, ptr + sourceLength);
+                    ptr += sourceLength;
+                    set(obj, field.getName(), floatArrValue);
                     break;
             }
         }
@@ -161,6 +169,25 @@ public class Marshaller {
         return array;
     }
 
+    public static byte[] marshal(float[] array) {
+        byte[] ret = new byte[array.length * FLOAT_SIZE];
+        for (int i = 0; i < array.length; i++) {
+            byte[] num = marshal(array[i]);
+            for (int j = 0; j < FLOAT_SIZE; j++)
+                ret[i * FLOAT_SIZE + j] = num[j];
+        }
+        return ret;
+    }
+
+    public static float[] unmarshalFloatArray(byte[] b, int start, int end) {
+        float[] array = new float[(end - start) / FLOAT_SIZE];
+        for (int i = 0; i < array.length; i++) {
+            int startIndex = start + i * FLOAT_SIZE;
+            array[i] = unmarshalFloat(Arrays.copyOfRange(b, startIndex, startIndex + FLOAT_SIZE), 0);
+        }
+        return array;
+    }
+
     public static Byte[] byteBoxing(byte[] b) {
         Byte[] ret = new Byte[b.length];
         for (int i = 0; i < b.length; i++)
@@ -212,6 +239,16 @@ public class Marshaller {
     public static void appendMessage(List list, int[] array) {
         list.addAll(Arrays.asList(byteBoxing(marshal(
                 INT_SIZE * array.length
+        ))));
+
+        list.addAll(Arrays.asList(byteBoxing(marshal(
+                array
+        ))));
+    }
+
+    public static void appendMessage(List list, float[] array) {
+        list.addAll(Arrays.asList(byteBoxing(marshal(
+                FLOAT_SIZE * array.length
         ))));
 
         list.addAll(Arrays.asList(byteBoxing(marshal(

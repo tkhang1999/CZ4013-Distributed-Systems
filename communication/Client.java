@@ -32,7 +32,7 @@ public class Client {
 
             System.out.println(Arrays.toString(test));
 
-            Request request = new Request(241506, input, (float) 15.24);
+            Request request = new Request(241506, input, test);
             buffer = Marshaller.marshal(request);
 
             // Step 2 : Create the datagramPacket for sending
