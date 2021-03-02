@@ -12,7 +12,7 @@ public class Marshaller {
     private static final int FLOAT_SIZE = 4;
 
     public static byte[] marshal(Object obj) {
-        List message = new ArrayList();
+        List<Byte> message = new ArrayList<>();
 
         Field[] fields = obj.getClass().getDeclaredFields();
         for (Field field : fields) {
@@ -202,11 +202,11 @@ public class Marshaller {
         return ret;
     }
 
-    public static byte[] byteUnboxing(List list) {
+    public static byte[] byteUnboxing(List<Byte> list) {
         return byteUnboxing((Byte[]) list.toArray(new Byte[list.size()]));
     }
 
-    public static void appendMessage(List list, int x) {
+    public static void appendMessage(List<Byte> list, int x) {
         list.addAll(Arrays.asList(byteBoxing(marshal(
                 INT_SIZE
         ))));
@@ -216,7 +216,7 @@ public class Marshaller {
         ))));
     }
 
-    public static void appendMessage(List list, float f) {
+    public static void appendMessage(List<Byte> list, float f) {
         list.addAll(Arrays.asList(byteBoxing(marshal(
                 FLOAT_SIZE
         ))));
@@ -226,7 +226,7 @@ public class Marshaller {
         ))));
     }
 
-    public static void appendMessage(List list, String s) {
+    public static void appendMessage(List<Byte> list, String s) {
         list.addAll(Arrays.asList(byteBoxing(marshal(
                 s.length()
         ))));
@@ -236,7 +236,7 @@ public class Marshaller {
         ))));
     }
 
-    public static void appendMessage(List list, int[] array) {
+    public static void appendMessage(List<Byte> list, int[] array) {
         list.addAll(Arrays.asList(byteBoxing(marshal(
                 INT_SIZE * array.length
         ))));
@@ -246,7 +246,7 @@ public class Marshaller {
         ))));
     }
 
-    public static void appendMessage(List list, float[] array) {
+    public static void appendMessage(List<Byte> list, float[] array) {
         list.addAll(Arrays.asList(byteBoxing(marshal(
                 FLOAT_SIZE * array.length
         ))));
@@ -256,9 +256,9 @@ public class Marshaller {
         ))));
     }
 
-    public static void append(List list, int x) {
-        list.addAll(Arrays.asList(byteBoxing(marshal(
-                x
-        ))));
-    }
+    // public static void append(List list, int x) {
+    //     list.addAll(Arrays.asList(byteBoxing(marshal(
+    //             x
+    //     ))));
+    // }
 }
