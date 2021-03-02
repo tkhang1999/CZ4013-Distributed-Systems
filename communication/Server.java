@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Arrays;
+
+import marshalling.Marshaller;
 
 public class Server {
     public static void main(String[] args) throws IOException
@@ -25,11 +28,14 @@ public class Server {
             // Step 3 : revieve the data in byte buffer.
             socket.receive(receivePacket);
 
-            String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            System.out.println("Client: " + msg);
+            // String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            Request request = (Request) Marshaller.unmarshal(receivePacket.getData(), new Request());
+            System.out.println(request.content);
+            System.out.println("request id: " + request.id + ", request method: " + request.method 
+                + ", request content: " + request.content);
 
             // exit the server if the client sends "bye"
-            if (msg.equals("end"))
+            if (request.method.equals("end"))
             {
                 System.out.println("Client sent 'end' request. EXIT!");
                 break;
@@ -39,7 +45,9 @@ public class Server {
             InetAddress clientAddress = receivePacket.getAddress();
             int clientPort = receivePacket.getPort();
 
-            buffer = "AUTO REPLY!".getBytes();
+            Response response = new Response(request.id, Status.OK.toString(), "received");
+            buffer = Marshaller.marshal(response);
+
             replyPacket = new DatagramPacket(buffer, buffer.length, clientAddress, clientPort);
             socket.send(replyPacket);            
         }

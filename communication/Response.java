@@ -1,25 +1,24 @@
 package communication;
 
-import java.util.Objects;
+public class Response {
+    public Integer id;
+    public String status;
+    public String content;
 
-public class Response<T> {
-    public Header header;
-    public T body;
+    public Response() {}
 
-    public Response() {
-    }
-
-    public Response(Header header, T body) {
-        this.header = header;
-        this.body = body;
+    public Response(Integer id, String status, String content) {
+        this.id = id;
+        this.status = status;
+        this.content = content;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Response)) return false;
-        Response<?> response = (Response<?>) o;
-        return Objects.equals(header, response.header) &&
-        Objects.equals(body, response.body);
+        Response response = (Response) o;
+        return id == response.id && status.equals(response.status) 
+            && content.equals(response.content);
     }
 }

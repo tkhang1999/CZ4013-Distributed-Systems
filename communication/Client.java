@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Scanner;
+
+import marshalling.Marshaller;
 
 public class Client {
 
@@ -18,13 +21,19 @@ public class Client {
         InetAddress address = InetAddress.getByName("localhost");    //IP address of server
         byte[] buffer = null;
 
-        // loop while user not enters "bye"
         while (true)
         {
             String input = sc.nextLine();
 
-            // convert the String input into the byte array.
-            buffer = input.getBytes();
+            // convert the input into the Request object.
+            // buffer = input.getBytes();
+
+            float[] test = {15, 24, 6};
+
+            System.out.println(Arrays.toString(test));
+
+            Request request = new Request(241506, input, (float) 15.24);
+            buffer = Marshaller.marshal(request);
 
             // Step 2 : Create the datagramPacket for sending
             // the data.
@@ -43,9 +52,10 @@ public class Client {
             buffer = new byte[512];
             packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
-            String replyMsg = new String(packet.getData(), 0, packet.getLength());
+            Response response = (Response) Marshaller.unmarshal(packet.getData(), new Response());
 
-            System.out.println("Server: " + replyMsg);
+            System.out.println("response id: " + response.id + ", response status: " + response.status 
+                + ", response content: " + response.content);
         }
     }
 }
