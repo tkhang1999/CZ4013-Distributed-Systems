@@ -7,12 +7,12 @@ import java.util.UUID;
  * Header of a request/response: a unique ID and a message
  */
 public class Header {
-    public Integer uuid;
+    public UUID uuid;
     public String message;
 
     public Header() {}
 
-    public Header(Integer uuid, String message) {
+    public Header(UUID uuid, String message) {
         this.uuid = uuid;
         this.message = message;
     }

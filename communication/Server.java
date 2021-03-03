@@ -7,10 +7,10 @@ import java.net.InetAddress;
 import java.util.Arrays;
 
 import marshalling.Marshaller;
+import marshalling.Unmarshaller;
 
 public class Server {
-    public static void main(String[] args) throws IOException
-    {
+    public static void main(String[] args) throws IOException {
         // Step 1 : Create a socket to listen at port 1234
         DatagramSocket socket = new DatagramSocket(1234);
 
@@ -18,8 +18,7 @@ public class Server {
         DatagramPacket receivePacket = null;
         DatagramPacket replyPacket = null;
 
-        while (true)
-        {
+        while (true) {
             byte[] buffer = new byte[512];
 
             // Step 2 : create a DatgramPacket to receive the data.
@@ -29,12 +28,12 @@ public class Server {
             socket.receive(receivePacket);
 
             // String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            Request request = (Request) Marshaller.unmarshal(receivePacket.getData(), new Request());
-            System.out.println("request id: " + request.id + ", request method: " + request.method 
-                + ", request content: " + Arrays.toString(request.content));
+            Request request = (Request) Unmarshaller.unmarshal(receivePacket.getData(), new Request());
+            System.out.println("request id: " + request.getId() + ", request method: " + request.getMethod() 
+                + ", request content: " + Arrays.toString(request.getContent()));
 
             // exit the server if the client sends "bye"
-            if (request.method.equals("end"))
+            if (request.getMethod().equals("end"))
             {
                 System.out.println("Client sent 'end' request. EXIT!");
                 break;
@@ -44,11 +43,13 @@ public class Server {
             InetAddress clientAddress = receivePacket.getAddress();
             int clientPort = receivePacket.getPort();
 
-            Response response = new Response(request.id, Status.OK.toString(), "received");
+            Response response = new Response(request.getId(), Status.OK.toString(), "received");
             buffer = Marshaller.marshal(response);
 
             replyPacket = new DatagramPacket(buffer, buffer.length, clientAddress, clientPort);
             socket.send(replyPacket);            
         }
+
+        socket.close();
     }
 }

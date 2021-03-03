@@ -1,6 +1,6 @@
 package communication;
 
-public class Response {
+public class Response implements ResponseInterface{
     public Integer id;
     public String status;
     public String content;
@@ -11,6 +11,20 @@ public class Response {
         this.id = id;
         this.status = status;
         this.content = content;
+    }
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public String getStatus() {
+        return status;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     @Override
