@@ -1,9 +1,9 @@
 package communication;
 
 public class Request implements RequestInterface {
-    private Integer id;
-    private String method;
-    private float[] content;
+    public Integer id;
+    public String method;
+    public float[] content;
 
     public Request() {}
 
@@ -21,6 +21,10 @@ public class Request implements RequestInterface {
     @Override
     public String getMethod() {
         return method;
+    }
+
+    public float[] getContent() {
+        return content;
     }
 
     @Override

@@ -1,9 +1,9 @@
 package communication;
 
 public class Response implements ResponseInterface{
-    private Integer id;
-    private String status;
-    private String content;
+    public Integer id;
+    public String status;
+    public String content;
 
     public Response() {}
 
@@ -21,6 +21,10 @@ public class Response implements ResponseInterface{
     @Override
     public String getStatus() {
         return status;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     @Override

@@ -54,8 +54,8 @@ public class Client {
             socket.receive(packet);
             Response response = (Response) Unmarshaller.unmarshal(packet.getData(), new Response());
 
-            System.out.println("response id: " + response.id + ", response status: " + response.status 
-                + ", response content: " + response.content);
+            System.out.println("response id: " + response.getId() + ", response status: " + response.getStatus() 
+                + ", response content: " + response.getContent());
         }
 
         sc.close();
