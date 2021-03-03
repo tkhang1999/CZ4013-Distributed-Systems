@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 import marshalling.Marshaller;
+import marshalling.Unmarshaller;
 
 public class Client {
 
@@ -51,7 +52,7 @@ public class Client {
             buffer = new byte[512];
             packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
-            Response response = (Response) Marshaller.unmarshal(packet.getData(), new Response());
+            Response response = (Response) Unmarshaller.unmarshal(packet.getData(), new Response());
 
             System.out.println("response id: " + response.id + ", response status: " + response.status 
                 + ", response content: " + response.content);

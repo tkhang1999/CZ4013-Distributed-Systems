@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.util.Arrays;
 
 import marshalling.Marshaller;
+import marshalling.Unmarshaller;
 
 public class Server {
     public static void main(String[] args) throws IOException
@@ -28,7 +29,7 @@ public class Server {
             socket.receive(receivePacket);
 
             // String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            Request request = (Request) Marshaller.unmarshal(receivePacket.getData(), new Request());
+            Request request = (Request) Unmarshaller.unmarshal(receivePacket.getData(), new Request());
             System.out.println("request id: " + request.id + ", request method: " + request.method 
                 + ", request content: " + Arrays.toString(request.content));
 
