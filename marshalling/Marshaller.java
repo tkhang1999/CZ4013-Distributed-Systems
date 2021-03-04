@@ -14,6 +14,9 @@ public class Marshaller {
     public static byte[] marshal(Object obj) {
         List<Byte> message = new ArrayList<>();
 
+        String className = obj.getClass().getName();
+        appendMessage(message, className);
+
         Iterable<Field> fields = Utils.getFieldsUpTo(obj.getClass(), Object.class);
         for (Field field : fields) {
             try {

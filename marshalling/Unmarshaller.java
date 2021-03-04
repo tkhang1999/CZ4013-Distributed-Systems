@@ -27,16 +27,31 @@ public class Unmarshaller {
         return false;
     }
 
-    public static Object unmarshal(byte[] b, Object obj) {
+    public static Object unmarshal(byte[] b) {
         int ptr = 0;
+        Class<?> objClass = null;
+        Object obj = null;
 
-        Iterable<Field> fields = Utils.getFieldsUpTo(obj.getClass(), Object.class);
+        int sourceLength = unmarshalInteger(b, ptr);
+        ptr += INT_SIZE;
+        String className = unmarshalString(b, ptr, ptr + sourceLength);
+        
+        ptr += sourceLength;
+
+        try {
+            objClass = Class.forName(className);
+            obj = objClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Iterable<Field> fields =  Utils.getFieldsUpTo(objClass, Object.class);
 
         for (Field field : fields) {
 
             String type = field.getGenericType().getTypeName().split("[<>]")[0];
 
-            int sourceLength = unmarshalInteger(b, ptr);
+            sourceLength = unmarshalInteger(b, ptr);
             ptr += INT_SIZE;
 
             switch (type) {

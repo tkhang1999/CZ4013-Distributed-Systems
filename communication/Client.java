@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import marshalling.Marshaller;
@@ -29,9 +28,6 @@ public class Client {
             // buffer = input.getBytes();
 
             float[] test = {15, 24, 6};
-
-            System.out.println(Arrays.toString(test));
-
             Request request = new Request(241506, input, test);
             buffer = Marshaller.marshal(request);
 
@@ -52,7 +48,7 @@ public class Client {
             buffer = new byte[512];
             packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
-            Response response = (Response) Unmarshaller.unmarshal(packet.getData(), new Response());
+            Response response = (Response) Unmarshaller.unmarshal(packet.getData());
 
             System.out.println("response id: " + response.id + ", response status: " + response.status
                 + ", response content: " + response.content);

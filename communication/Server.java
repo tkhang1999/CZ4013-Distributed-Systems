@@ -28,7 +28,7 @@ public class Server {
             socket.receive(receivePacket);
 
             // String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            Request request = (Request) Unmarshaller.unmarshal(receivePacket.getData(), new Request());
+            Request request = (Request) Unmarshaller.unmarshal(receivePacket.getData());
             System.out.println("request id: " + request.id + ", request method: " + request.method
                 + ", request content: " + Arrays.toString(request.content));
 
