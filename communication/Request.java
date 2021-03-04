@@ -1,30 +1,13 @@
 package communication;
 
-public class Request implements RequestInterface {
-    public Integer id;
-    public String method;
+public class Request extends RequestAbstract {
     public float[] content;
 
     public Request() {}
 
     public Request(Integer id, String method, float[] content) {
-        this.id = id;
-        this.method = method;
+        super(id, method);
         this.content = content;
-    }
-
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public String getMethod() {
-        return method;
-    }
-
-    public float[] getContent() {
-        return content;
     }
 
     @Override

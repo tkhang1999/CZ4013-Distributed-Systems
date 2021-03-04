@@ -1,30 +1,13 @@
 package communication;
 
-public class Response implements ResponseInterface{
-    public Integer id;
-    public String status;
+public class Response extends ResponseAbstract{
     public String content;
 
     public Response() {}
 
     public Response(Integer id, String status, String content) {
-        this.id = id;
-        this.status = status;
+        super(id, status);
         this.content = content;
-    }
-
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public String getStatus() {
-        return status;
-    }
-
-    public String getContent() {
-        return content;
     }
 
     @Override

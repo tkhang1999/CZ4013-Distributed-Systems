@@ -30,7 +30,7 @@ public class Unmarshaller {
     public static Object unmarshal(byte[] b, Object obj) {
         int ptr = 0;
 
-        Field[] fields = obj.getClass().getDeclaredFields();
+        Iterable<Field> fields = Utils.getFieldsUpTo(obj.getClass(), Object.class);
 
         for (Field field : fields) {
 
