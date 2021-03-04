@@ -29,7 +29,7 @@ public class Unmarshaller {
 
     public static Object unmarshal(byte[] b) {
         int ptr = 0;
-        Class<?> objClass = null;
+        Class<?> clazz = null;
         Object obj = null;
 
         int sourceLength = unmarshalInteger(b, ptr);
@@ -39,13 +39,13 @@ public class Unmarshaller {
         ptr += sourceLength;
 
         try {
-            objClass = Class.forName(className);
-            obj = objClass.getDeclaredConstructor().newInstance();
+            clazz = Class.forName(className);
+            obj = clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Iterable<Field> fields =  Utils.getFieldsUpTo(objClass, Object.class);
+        Iterable<Field> fields =  Utils.getFieldsUpTo(clazz, Object.class);
 
         for (Field field : fields) {
 
