@@ -73,7 +73,11 @@ public class Unmarshaller {
     }
 
     public static int unmarshalInteger(byte[] b, int start) {
-        return b[start] << 24 | (b[start + 1] & 0xFF) << 16 | (b[start + 2] & 0xFF) << 8 | (b[start + 3] & 0xFF);
+        // return b[start] << 24 | (b[start + 1] & 0xFF) << 16 | (b[start + 2] & 0xFF) << 8 | (b[start + 3] & 0xFF);
+        byte[] content = new byte[]{
+            b[start], b[start + 1], b[start + 2], b[start + 3]
+        };
+        return ByteBuffer.wrap(content).order(ByteOrder.BIG_ENDIAN).getInt();
     }
 
     public static float unmarshalFloat(byte[] b, int start) {

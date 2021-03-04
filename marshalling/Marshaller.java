@@ -2,6 +2,7 @@ package marshalling;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,16 +49,19 @@ public class Marshaller {
     }
 
     public static byte[] marshal(int x) {
-        return new byte[]{
-                (byte) (x >> 24),
-                (byte) (x >> 16),
-                (byte) (x >> 8),
-                (byte) (x >> 0)
-        };
+
+        return ByteBuffer.allocate(INT_SIZE).order(ByteOrder.BIG_ENDIAN).putInt(x).array();
+
+        // return new byte[]{
+        //         (byte) (x >> 24),
+        //         (byte) (x >> 16),
+        //         (byte) (x >> 8),
+        //         (byte) (x >> 0)
+        // };
     }
 
     public static byte[] marshal(float f) {
-        return ByteBuffer.allocate(FLOAT_SIZE).putFloat(f).array();
+        return ByteBuffer.allocate(FLOAT_SIZE).order(ByteOrder.BIG_ENDIAN).putFloat(f).array();
     }
 
     public static byte[] marshal(String s) {
