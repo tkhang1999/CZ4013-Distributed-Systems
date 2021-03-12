@@ -30,7 +30,7 @@ public class Client {
             // buffer = input.getBytes();
 
             float[] test = {15, 24, 6};
-            TestRequest request = new TestRequest(241506, input, test);
+            TestRequest request = new TestRequest(IdGenerator.getNewId(), input, test);
             buffer = Marshaller.marshal(request);
 
             // Step 2: create the datagramPacket for sending the data
