@@ -30,7 +30,7 @@ public class Client {
             // buffer = input.getBytes();
 
             float[] test = {15, 24, 6};
-            Request request = new Request(241506, input, test);
+            TestRequest request = new TestRequest(241506, input, test);
             buffer = Marshaller.marshal(request);
 
             // Step 2: create the datagramPacket for sending the data
@@ -48,7 +48,7 @@ public class Client {
             buffer = new byte[512];
             packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
-            Response response = (Response) Unmarshaller.unmarshal(packet.getData());
+            TestResponse response = (TestResponse) Unmarshaller.unmarshal(packet.getData());
 
             System.out.println("response id: " + response.id + ", response status: " + response.status
                 + ", response content: " + response.content);

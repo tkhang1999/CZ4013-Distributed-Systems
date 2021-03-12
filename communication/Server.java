@@ -31,7 +31,7 @@ public class Server {
             socket.receive(receivePacket);
 
             // String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            Request request = (Request) Unmarshaller.unmarshal(receivePacket.getData());
+            TestRequest request = (TestRequest) Unmarshaller.unmarshal(receivePacket.getData());
             System.out.println("request id: " + request.id + ", request method: " + request.method
                 + ", request content: " + Arrays.toString(request.content));
 
@@ -46,7 +46,7 @@ public class Server {
             InetAddress clientAddress = receivePacket.getAddress();
             int clientPort = receivePacket.getPort();
 
-            Response response = new Response(request.id, Status.OK.toString(), "received");
+            TestResponse response = new TestResponse(request.id, Status.OK.toString(), "received");
             buffer = Marshaller.marshal(response);
 
             replyPacket = new DatagramPacket(buffer, buffer.length, clientAddress, clientPort);
