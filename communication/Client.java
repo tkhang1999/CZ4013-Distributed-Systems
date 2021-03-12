@@ -9,13 +9,15 @@ import java.util.Scanner;
 import marshalling.Marshaller;
 import marshalling.Unmarshaller;
 
+/**
+ * The {@code Client} class for the client of the application
+ */
 public class Client {
 
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
 
-        // Step 1:Create the socket object for
-        // carrying the data.
+        // Step 1: create the socket object for carrying the data
         DatagramSocket socket = new DatagramSocket();
 
         InetAddress address = InetAddress.getByName("localhost");    //IP address of server
@@ -31,16 +33,14 @@ public class Client {
             Request request = new Request(241506, input, test);
             buffer = Marshaller.marshal(request);
 
-            // Step 2 : Create the datagramPacket for sending
-            // the data.
+            // Step 2: create the datagramPacket for sending the data
             DatagramPacket packet =
                     new DatagramPacket(buffer, buffer.length, address, 1234);
 
-            // Step 3 : invoke the send call to actually send
-            // the data.
+            // Step 3: invoke the send call to actually send the data
             socket.send(packet);
 
-            // break the loop if user enters "bye"
+            // break the loop if user enters "end"
             if (input.equals("end"))
                 break;
 

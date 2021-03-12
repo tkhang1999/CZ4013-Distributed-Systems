@@ -1,5 +1,1 @@
-/Main.class
-/FacilityManager.class
-/Facility.class
-/Utils.class
-/Facility$TimePeriod.class
+*.class

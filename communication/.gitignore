@@ -1,6 +1,1 @@
-/Client.class
-/Header.class
-/Request.class
-/Response.class
-/Server.class
-/Status.class
+*.class

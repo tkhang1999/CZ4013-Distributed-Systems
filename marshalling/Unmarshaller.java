@@ -5,28 +5,43 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+/**
+ * The {@code Unmarshaller} class is to unmarshall a byte-array data to an actual object 
+ */
 public class Unmarshaller {
 
     private static final int INT_SIZE = TypeSize.INT.value;
     private static final int FLOAT_SIZE = TypeSize.FLOAT.value;
 
-    public static boolean set(Object object, String fieldName, Object fieldValue) {
+    /**
+     * Set a field of an object to its true value
+     * 
+     * @param object An object
+     * @param fieldName Name of the field to be set
+     * @param fieldValue Value of the field
+     */
+    public static void set(Object object, String fieldName, Object fieldValue) {
         Class<?> clazz = object.getClass();
         while (clazz != null) {
             try {
                 Field field = clazz.getDeclaredField(fieldName);
                 field.setAccessible(true);
                 field.set(object, fieldValue);
-                return true;
+                return;
             } catch (NoSuchFieldException e) {
                 clazz = clazz.getSuperclass();
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
         }
-        return false;
     }
 
+    /**
+     * Unmarshall a byte array to return an object
+     * 
+     * @param b A byte array
+     * @return An object
+     */
     public static Object unmarshal(byte[] b) {
         int ptr = 0;
         Class<?> clazz = null;
@@ -87,6 +102,13 @@ public class Unmarshaller {
         return obj;
     }
 
+    /**
+     * Unmarshall a byte array of an interger
+     * 
+     * @param b A byte array
+     * @param start Start index
+     * @return An interger
+     */
     public static int unmarshalInteger(byte[] b, int start) {
         // return b[start] << 24 | (b[start + 1] & 0xFF) << 16 | (b[start + 2] & 0xFF) << 8 | (b[start + 3] & 0xFF);
         byte[] content = new byte[]{
@@ -95,6 +117,13 @@ public class Unmarshaller {
         return ByteBuffer.wrap(content).order(ByteOrder.BIG_ENDIAN).getInt();
     }
 
+    /**
+     * Unmarshall a byte array of a float
+     * 
+     * @param b A byte array
+     * @param start Start index
+     * @return A float
+     */
     public static float unmarshalFloat(byte[] b, int start) {
         byte[] content = new byte[]{
                 b[start], b[start + 1], b[start + 2], b[start + 3]
@@ -102,6 +131,14 @@ public class Unmarshaller {
         return ByteBuffer.wrap(content).order(ByteOrder.BIG_ENDIAN).getFloat();
     }
 
+    /**
+     * Unmarshall a byte array of a string
+     * 
+     * @param b A byte array
+     * @param start Start index
+     * @param end End index
+     * @return A string
+     */
     public static String unmarshalString(byte[] b, int start, int end) {
         char[] c = new char[end - start];
         for (int i = start; i < end; i++) {
@@ -110,6 +147,14 @@ public class Unmarshaller {
         return new String(c);
     }
 
+    /**
+     * Unmarshall a byte array of an integer array 
+     * 
+     * @param b A byte array
+     * @param start Start index
+     * @param end End index
+     * @return An integer array
+     */
     public static int[] unmarshalIntArray(byte[] b, int start, int end) {
         int[] array = new int[(end - start) / INT_SIZE];
         for (int i = 0; i < array.length; i++) {
@@ -119,6 +164,14 @@ public class Unmarshaller {
         return array;
     }
 
+    /**
+     * Unmarshall a byte array of a float array
+     * 
+     * @param b A byte array
+     * @param start Start index
+     * @param end End index
+     * @return A float array
+     */
     public static float[] unmarshalFloatArray(byte[] b, int start, int end) {
         float[] array = new float[(end - start) / FLOAT_SIZE];
         for (int i = 0; i < array.length; i++) {

@@ -9,9 +9,12 @@ import java.util.Arrays;
 import marshalling.Marshaller;
 import marshalling.Unmarshaller;
 
+/**
+ * The {@code Server} class for the server of the application
+ */
 public class Server {
     public static void main(String[] args) throws IOException {
-        // Step 1 : Create a socket to listen at port 1234
+        // Step 1: create a socket to listen at port 1234
         DatagramSocket socket = new DatagramSocket(1234);
 
         // these 2 packets can be the same, no need to be 2 separate objects
@@ -21,10 +24,10 @@ public class Server {
         while (true) {
             byte[] buffer = new byte[512];
 
-            // Step 2 : create a DatgramPacket to receive the data.
+            // Step 2: create a DatgramPacket to receive the data
             receivePacket = new DatagramPacket(buffer, buffer.length);
 
-            // Step 3 : revieve the data in byte buffer.
+            // Step 3: recieve the data in byte buffer
             socket.receive(receivePacket);
 
             // String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
