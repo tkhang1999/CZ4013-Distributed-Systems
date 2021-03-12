@@ -48,10 +48,17 @@ public class Client {
             buffer = new byte[512];
             packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
-            TestResponse response = (TestResponse) Unmarshaller.unmarshal(packet.getData());
+            Response response = (Response) Unmarshaller.unmarshal(packet.getData());
 
-            System.out.println("response id: " + response.id + ", response status: " + response.status
-                + ", response content: " + response.content);
+            switch (request.method) {
+                case "input":
+                    TestResponse tr = (TestResponse) response;
+                    System.out.println("response id: " + tr.id + ", response status: " + tr.status
+                        + ", response content: " + tr.content);
+                    break;
+                default:
+                    System.out.println("response id: " + response.id + ", response status: " + response.status);
+            }
         }
 
         sc.close();
