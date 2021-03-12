@@ -17,30 +17,29 @@ public class Client {
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
 
-        // Step 1: create the socket object for carrying the data
+        // create the socket object for carrying the data
         DatagramSocket socket = new DatagramSocket();
 
-        InetAddress address = InetAddress.getByName("localhost");    //IP address of server
+        // get the IP address of the server
+        InetAddress address = InetAddress.getByName("localhost");
+        // create a byte buffer for sending and receiving data
         byte[] buffer = null;
 
         while (true) {
+            // read user's input
             String input = sc.nextLine();
 
-            // convert the input into the Request object.
-            // buffer = input.getBytes();
-
+            // SAMPLE request
             float[] test = {15, 24, 6};
             TestRequest request = new TestRequest(IdGenerator.getNewId(), input, test);
             buffer = Marshaller.marshal(request);
 
-            // Step 2: create the datagramPacket for sending the data
-            DatagramPacket packet =
-                    new DatagramPacket(buffer, buffer.length, address, 1234);
-
-            // Step 3: invoke the send call to actually send the data
+            // create the datagramPacket for sending the data
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 1234);
+            // invoke the send call to actually send the data
             socket.send(packet);
 
-            // break the loop if user enters "end"
+            // end client session if user inputs "end"
             if (input.equals("end"))
                 break;
 
@@ -48,8 +47,9 @@ public class Client {
             buffer = new byte[512];
             packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
+            // get a general response from the server
             Response response = (Response) Unmarshaller.unmarshal(packet.getData());
-
+            // get the specific response based on the request method
             switch (request.method) {
                 case "input":
                     TestResponse tr = (TestResponse) response;

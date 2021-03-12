@@ -16,32 +16,35 @@ import marshalling.Unmarshaller;
  */
 public class Server {
     public static void main(String[] args) throws IOException {
-        // List of received request ids, which will be required in case At-most-once invocation method is used
+        // create a list of received request ids, 
+        // which will be required in case At-most-once invocation method is used
         Map<Integer, Response> requestResponseMap = new HashMap<>();
-        // Select invocation method to be used
+        // select invocation method to be used
         InvocationMethod invocation = InvocationMethod.AT_MOST_ONCE;
-
-        // Step 1: create a socket to listen at port 1234
-        DatagramSocket socket = new DatagramSocket(1234);
-
-        // these 2 packets can be the same, no need to be 2 separate objects
+        // create receive and reply packets
         DatagramPacket receivePacket = null;
         DatagramPacket replyPacket = null;
 
+        // create a socket to listen at port 1234
+        DatagramSocket socket = new DatagramSocket(1234);
+
         while (true) {
+            // create a byte buffer for receiving and sending data
             byte[] buffer = new byte[512];
-
-            // Step 2: create a DatgramPacket to receive the data
+            // create a DatgramPacket to receive the data
             receivePacket = new DatagramPacket(buffer, buffer.length);
-
-            // Step 3: recieve the data in byte buffer
+            // recieve the data in byte buffer and return a response
             socket.receive(receivePacket);
 
+            // get a general request from client
             Request request = (Request) Unmarshaller.unmarshal(receivePacket.getData());
+            // create a general response
             Response response = null;
 
-            // if At-most-once invocation method is used, check for duplicate request
+            // if At-most-once invocation method is not used or there is no duplicate request
             if (!invocation.filterDuplicates || !requestResponseMap.keySet().contains(request.id)) {
+                // check request method to get the specific request,
+                // and construct the respective response accordingly
                 switch (request.method) {
                     case "input":
                         TestRequest t = (TestRequest) request;
@@ -58,10 +61,13 @@ public class Server {
                         buffer = Marshaller.marshal(response);
                 }
 
+                // store the response if at-most-once invocation method is used
                 if (invocation.filterDuplicates) {
                     requestResponseMap.put(request.id, response);
                 }
-            } else {
+            } 
+            // if duplicate request is found, retransmit stored reply message (response)
+            else {
                 response = requestResponseMap.get(request.id);
                 buffer = Marshaller.marshal(response);
             }
@@ -69,7 +75,6 @@ public class Server {
             // reply to client
             InetAddress clientAddress = receivePacket.getAddress();
             int clientPort = receivePacket.getPort();
-
             replyPacket = new DatagramPacket(buffer, buffer.length, clientAddress, clientPort);
             socket.send(replyPacket);            
         }
