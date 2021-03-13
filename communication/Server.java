@@ -25,8 +25,8 @@ public class Server {
         DatagramPacket receivePacket = null;
         DatagramPacket replyPacket = null;
 
-        // create a socket to listen at port 1234
-        DatagramSocket socket = new DatagramSocket(1234);
+        // create a socket to listen at port 2222
+        DatagramSocket socket = new DatagramSocket(Constants.SERVER_PORT);
 
         while (true) {
             // create a byte buffer for receiving and sending data
