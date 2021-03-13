@@ -90,10 +90,12 @@ public class Client {
     }
 
     private static byte[] constructSampleServiceRequest(Scanner sc) {
-        String input = sc.nextLine();
+        // String input = sc.nextLine();
         float[] content = {15, 24, 6};
         // SAMPLE request
-        TestRequest request = new TestRequest(IdGenerator.getNewId(), input, content);
+        // TestRequest request = new TestRequest(IdGenerator.getNewId(), Constants.SAMPLE_SERVICE_METHOD, content);
+        // For DUPLICATE requests
+        TestRequest request = new TestRequest(152406, Constants.SAMPLE_SERVICE_METHOD, content);
         byte[] buffer = Marshaller.marshal(request);
 
         return buffer;
