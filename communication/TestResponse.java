@@ -9,13 +9,4 @@ public class TestResponse extends Response{
         super(id, status);
         this.content = content;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TestResponse)) return false;
-        TestResponse response = (TestResponse) o;
-        return id == response.id && status.equals(response.status) 
-            && content.equals(response.content);
-    }
 }

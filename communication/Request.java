@@ -1,14 +1,22 @@
 package communication;
 
-public class Request {
+public abstract class Request {
     
     public int id;
-    public String method;
+    public String type;
 
     public Request() {}
 
-    public Request(int id, String method) {
+    public Request(int id, String type) {
         this.id = id;
-        this.method = method;
+        this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Request)) return false;
+        Request request = (Request) o;
+        return id == request.id;
     }
 }

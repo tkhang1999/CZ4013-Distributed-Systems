@@ -5,17 +5,8 @@ public class TestRequest extends Request {
 
     public TestRequest() {}
 
-    public TestRequest(Integer id, String method, float[] content) {
-        super(id, method);
+    public TestRequest(Integer id, float[] content) {
+        super(id, RequestType.TEST.type);
         this.content = content;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TestRequest)) return false;
-        TestRequest request = (TestRequest) o;
-        return id == request.id && method.equals(request.method) 
-            && content == request.content;
     }
 }

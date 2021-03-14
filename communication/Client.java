@@ -56,9 +56,9 @@ public class Client {
 
             switch (serviceType) {
                 case Constants.SAMPLE_SERVICE:
-                    requestBuffer = constructSampleServiceRequest(sc);
+                    requestBuffer = constructTestRequest(sc);
                     responseBuffer = client.sendAndReceive(requestBuffer);
-                    handleSampleSericeResponse(responseBuffer);
+                    handleTestResponse(responseBuffer);
                     break;
                 case Constants.END_SERVICE:
                     end = true;
@@ -68,40 +68,25 @@ public class Client {
                     System.out.println("Invalid service! Please select a service again!");
                     break;
             }
-            // // end client session if user inputs "end"
-            // if (input.equals("end"))
-            //     break;
-
-            // // get a general response from the server
-            // Response response = (Response) Unmarshaller.unmarshal(packet.getData());
-            // // get the specific response based on the request method
-            // switch (request.method) {
-            //     case "input":
-            //         TestResponse tr = (TestResponse) response;
-
-            //         break;
-            //     default:
-            //         System.out.println("response id: " + response.id + ", response status: " + response.status);
-            // }
         }
 
         sc.close();
         client.end();
     }
 
-    private static byte[] constructSampleServiceRequest(Scanner sc) {
+    private static byte[] constructTestRequest(Scanner sc) {
         // String input = sc.nextLine();
         float[] content = {15, 24, 6};
         // SAMPLE request
-        // TestRequest request = new TestRequest(IdGenerator.getNewId(), Constants.SAMPLE_SERVICE_METHOD, content);
+        TestRequest request = new TestRequest(IdGenerator.getNewId(), content);
         // For DUPLICATE requests
-        TestRequest request = new TestRequest(152406, Constants.SAMPLE_SERVICE_METHOD, content);
+        // TestRequest request = new TestRequest(152406, content);
         byte[] buffer = Marshaller.marshal(request);
 
         return buffer;
     }
 
-    private static void handleSampleSericeResponse(byte[] responseBuffer) {
+    private static void handleTestResponse(byte[] responseBuffer) {
         TestResponse response = (TestResponse) Unmarshaller.unmarshal(responseBuffer);
         System.out.println("response id: " + response.id + ", response status: " + response.status
             + ", response content: " + response.content);

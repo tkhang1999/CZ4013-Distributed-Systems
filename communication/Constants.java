@@ -10,6 +10,5 @@ public final class Constants {
     public static final InvocationMethod INVOCATION_METHOD = InvocationMethod.AT_MOST_ONCE;
 
     public static final int SAMPLE_SERVICE = 0;
-    public static final String SAMPLE_SERVICE_METHOD = "sample";
     public static final int END_SERVICE = -1;
 }

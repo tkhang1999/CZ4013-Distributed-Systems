@@ -53,12 +53,13 @@ public class Server {
     
                 if (!handled) {
                     // get specific request based on request method
-                    switch(request.method) {
-                        case Constants.SAMPLE_SERVICE_METHOD:
+                    System.out.println(request.type);
+                    switch(RequestType.fromString(request.type)) {
+                        case TEST:
                             TestRequest t = (TestRequest) request;
-                            System.out.println("request id: " + t.id + ", request method: " + t.method
+                            System.out.println("request id: " + t.id + ", request method: " + t.type
                                 + ", request content: " + Arrays.toString(t.content));
-                            TestResponse response = new TestResponse(request.id, Status.OK.toString(), "received");
+                            TestResponse response = new TestResponse(request.id, Status.OK.label, "received");
                             server.requestResponseMap.put(request.id, response);
                             byte[] buffer = Marshaller.marshal((TestResponse) response);
                             server.send(buffer, clientAddress, clientPort);
@@ -82,8 +83,8 @@ public class Server {
             Response response = requestResponseMap.get(request.id);
             System.out.println("Detect duplicate request! Restransmit stored response!");
 
-            switch (request.method) {
-                case Constants.SAMPLE_SERVICE_METHOD:
+            switch(RequestType.fromString(request.type)) {
+                case TEST:
                     // TestRequest t = (TestRequest) request;
                     // System.out.println("request id: " + t.id + ", request method: " + t.method
                     //     + ", request content: " + Arrays.toString(t.content));
