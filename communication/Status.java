@@ -1,5 +1,8 @@
 package communication;
 
+/**
+ * The {@code Status} enum for status of a response
+ */
 public enum Status {
     OK("Ok"),
     DUPLICATE("Duplicate request"),

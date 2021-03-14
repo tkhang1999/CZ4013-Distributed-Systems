@@ -48,7 +48,7 @@ public class Server {
                 int clientPort = requestPacket.getPort();
 
                 if (server.invocation == InvocationMethod.AT_MOST_ONCE) {
-                    handled = server.filterDuplicateRequest(request, clientAddress, clientPort);
+                    handled = server.handleDuplicateRequest(request, clientAddress, clientPort);
                 }
     
                 if (!handled) {
@@ -76,7 +76,7 @@ public class Server {
         server.end();
     }
 
-    private boolean filterDuplicateRequest(Request request, InetAddress address, int port) throws IOException {
+    private boolean handleDuplicateRequest(Request request, InetAddress address, int port) throws IOException {
         boolean handled = false;
 
         if (this.requestResponseMap.containsKey(request.id)) {
