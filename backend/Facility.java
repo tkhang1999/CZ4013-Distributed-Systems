@@ -7,19 +7,22 @@ import java.util.List;
 
 public class Facility {
 	private String name;
-	public static TimePeriod workingHours = new TimePeriod(0, 1439);
-	//Map weekday to a list of available booking times, e.g Mon -> [0->1439], 0 represent 00:00 while 1439 represent 23:59
-	private HashMap<String, List<TimePeriod>> availableBookingTime;
+	public String getName() {
+		return name;
+	}
+	public static final TimePeriod WORKING_HOURS = new TimePeriod(0, 1439);
+	//Map weekday to a list of available booking times, e.g Monday -> [0->1439], 0 represent 00:00 while 1439 represent 23:59
+	private HashMap<WeekDay, List<TimePeriod>> availableBookingTime;
 	
 	public Facility(String name) {
 		this.name = name;
 		this.availableBookingTime = new HashMap<>();
-		for (String weekday: Utils.WEEKDAYS) {
-			availableBookingTime.put(weekday, new ArrayList<>(Arrays.asList(workingHours.clone())));
+		for (WeekDay weekday: WeekDay.values()) {
+			availableBookingTime.put(weekday, new ArrayList<>(Arrays.asList(WORKING_HOURS.clone())));
 		}
 	}
 	
-	public boolean bookTime(TimePeriod period, String weekday) {
+	public boolean bookTime(TimePeriod period, WeekDay weekday) {
 		int index = 0;
 		for (TimePeriod availablePeriod: availableBookingTime.get(weekday)) {
 			if (availablePeriod.include(period)) {
@@ -41,7 +44,7 @@ public class Facility {
 		return false;
 	}
 	
-	public void releaseBookingTime(TimePeriod period, String weekday) {
+	public void releaseBookingTime(TimePeriod period, WeekDay weekday) {
 		int index = 0;
 		for (TimePeriod availablePeriod: availableBookingTime.get(weekday)) {
 			if (availablePeriod.compareTo(period) > 0) break;
@@ -69,12 +72,12 @@ public class Facility {
 		}	
 	}
 	
-	public boolean shiftBookingTime(String weekday, TimePeriod period, int shiftMins) {
+	public boolean shiftBookingTime(WeekDay weekday, TimePeriod period, int shiftMins) {
 		this.releaseBookingTime(period, weekday);
 		TimePeriod newBookingPeriod = period.clone();
 		newBookingPeriod.start += shiftMins;
 		newBookingPeriod.end += shiftMins;
-		if (workingHours.include(newBookingPeriod)) {
+		if (WORKING_HOURS.include(newBookingPeriod)) {
 			if (bookTime(newBookingPeriod, weekday)) {
 				return true;
 			} else bookTime(period, weekday);
@@ -83,30 +86,8 @@ public class Facility {
 	}
 	
 	
-	public HashMap<String, List<TimePeriod>> getAvailableBookingTime(){
+	public HashMap<WeekDay, List<TimePeriod>> getAvailableBookingTime(){
 		return availableBookingTime;
 	}
-	public static class TimePeriod implements Comparable{
-		public int start;
-		public int end;
-		
-		public TimePeriod(int s, int e) {
-			start = s;
-			end = e;
-		}
-		
-		public int compareTo(Object o) {
-			TimePeriod t2 = (TimePeriod) o;
-			return this.start - t2.start;
-		}
-		
-		public boolean include(TimePeriod period) {
-			return period.start >= this.start && period.end <= this.end;
-		}
-		
-		public TimePeriod clone() {
-			return new TimePeriod(this.start, this.end);
-		}
-		
-	}
+	
 }

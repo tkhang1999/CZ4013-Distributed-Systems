@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Utils {
-	public static final List<String> WEEKDAYS = new ArrayList<>(Arrays.asList("Mon", "Tue", "Wed", "Thurs", "Fri", "Sat", "Sun"));
+	public static final List<WeekDay> WEEKDAYS = new ArrayList<>(Arrays.asList(WeekDay.values()));
 	
 	
 	//example: convert 1439 to 23:59
