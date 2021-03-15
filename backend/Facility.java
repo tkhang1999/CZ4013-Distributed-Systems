@@ -1,11 +1,12 @@
 package backend;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class Facility {
+public class Facility implements Serializable{
 	private String name;
 	public String getName() {
 		return name;
@@ -61,13 +62,13 @@ public class Facility {
 			} else if (after != null && period.end == after.start) {
 				after.start = period.start;
 			} else {
-				availableBookingTime.get(weekday).add(index, period);
+				availableBookingTime.get(weekday).add(index, period.clone());
 			}
 		} else {
 			if (after != null && period.end == after.start) {
 				after.start = period.start;
 			} else {
-				availableBookingTime.get(weekday).add(index, period);
+				availableBookingTime.get(weekday).add(index, period.clone());
 			}
 		}	
 	}

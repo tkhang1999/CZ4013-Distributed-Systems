@@ -1,8 +1,8 @@
 package backend;
 
+import java.io.Serializable;
 
-
-public class TimePeriod implements Comparable{
+public class TimePeriod implements Comparable, Serializable{
 	public int start;
 	public int end;
 	
