@@ -6,7 +6,8 @@ public class Message {
 	
 	public Message() {}
 	public Message(boolean status, String message) {
-		
+		this.status = status;
+		this.message = message;
 	}
 	
 	public boolean isStatus() {

@@ -54,9 +54,9 @@ public class Facility implements Serializable{
 		TimePeriod prev = (index>0)?availableBookingTime.get(weekday).get(index-1):null;
 		TimePeriod after =(index<availableBookingTime.get(weekday).size())?availableBookingTime.get(weekday).get(index):null;
 		if (prev != null) {
-			if (prev.end == period.start && period.end == after.start) {
+			if (prev.end == period.start && after != null && period.end == after.start) {
 				prev.end = after.end;
-				availableBookingTime.get(weekday).remove(index+1);
+				availableBookingTime.get(weekday).remove(index);
 			} else if (prev.end == period.start) {
 				prev.end = period.end;
 			} else if (after != null && period.end == after.start) {
@@ -75,9 +75,7 @@ public class Facility implements Serializable{
 	
 	public boolean shiftBookingTime(WeekDay weekday, TimePeriod period, int shiftMins) {
 		this.releaseBookingTime(period, weekday);
-		TimePeriod newBookingPeriod = period.clone();
-		newBookingPeriod.start += shiftMins;
-		newBookingPeriod.end += shiftMins;
+		TimePeriod newBookingPeriod = period.shiftBy(shiftMins);
 		if (WORKING_HOURS.include(newBookingPeriod)) {
 			if (bookTime(newBookingPeriod, weekday)) {
 				return true;
@@ -86,6 +84,19 @@ public class Facility implements Serializable{
 		return false;
 	}
 	
+	public boolean extendBookingTime(WeekDay weekday, TimePeriod period, boolean sooner, int extendTime) {
+		this.releaseBookingTime(period, weekday);
+		TimePeriod newBookingPeriod = period.clone();
+		if (sooner) {
+			newBookingPeriod.start -= extendTime;
+		} else newBookingPeriod.end += extendTime;
+		if (WORKING_HOURS.include(newBookingPeriod)) {
+			if (bookTime(newBookingPeriod, weekday)) {
+				return true;
+			} else bookTime(period, weekday);
+		}
+		return false;
+	}
 	
 	public HashMap<WeekDay, List<TimePeriod>> getAvailableBookingTime(){
 		return availableBookingTime;

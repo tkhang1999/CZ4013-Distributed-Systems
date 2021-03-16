@@ -1,26 +1,25 @@
 package backend;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 public class BookingInfo implements Serializable{
-	private UUID id;
+	private String id;
 	private WeekDay day;
 	private TimePeriod timePeriod;
 	private String facilityName;
 	
-	public BookingInfo(UUID id, WeekDay day, TimePeriod timePeriod, String facilityName) {
+	public BookingInfo(String id, WeekDay day, TimePeriod timePeriod, String facilityName) {
 		this.id = id;
 		this.day = day;
 		this.timePeriod = timePeriod.clone();
 		this.facilityName = facilityName;
 	}
 
-	public UUID getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(UUID id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

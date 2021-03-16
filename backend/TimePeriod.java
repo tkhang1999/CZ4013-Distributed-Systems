@@ -24,4 +24,12 @@ public class TimePeriod implements Comparable, Serializable{
 		return new TimePeriod(this.start, this.end);
 	}
 	
+	public TimePeriod shiftBy(int shiftTime) {
+		return new TimePeriod(start+shiftTime, end+shiftTime);
+	}
+	
+	public String toString() {
+		return Utils.convertMinutesToTime(start)+"-"+Utils.convertMinutesToTime(end);
+	}
+	
 }
