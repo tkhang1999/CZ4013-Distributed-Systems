@@ -2,13 +2,13 @@ package backend;
 
 public class RegisteredClientInfo {
 	private String clientIP;
-	private String port;
+	private int port;
 	private int interval;
 	private double createdTime;
 	
 	public RegisteredClientInfo() {}
 	
-	public RegisteredClientInfo(String ip, String port, int interval) {
+	public RegisteredClientInfo(String ip, int port, int interval) {
 		this.clientIP = ip;
 		this.port = port;
 		this.interval = interval;
@@ -21,10 +21,10 @@ public class RegisteredClientInfo {
 	public void setClientIP(String clientIP) {
 		this.clientIP = clientIP;
 	}
-	public String getPort() {
+	public int getPort() {
 		return port;
 	}
-	public void setPort(String port) {
+	public void setPort(int port) {
 		this.port = port;
 	}
 	
@@ -48,7 +48,7 @@ public class RegisteredClientInfo {
 	public int hashCode() {
 		int code = 0;
 		if (clientIP != null) code += clientIP.hashCode();
-		if (port != null) code += port.hashCode();
+		code += ((Integer) port).hashCode();
 		return code;
 	}
 	
@@ -57,9 +57,8 @@ public class RegisteredClientInfo {
 		if (! (o instanceof RegisteredClientInfo)) {
 			return false;
 		}
-		if (o == null) return false;
 		RegisteredClientInfo info = (RegisteredClientInfo) o;
-		return info.getClientIP().equals(info.getClientIP()) && info.getPort().equals(info.getPort());
+		return info.getClientIP().equals(this.getClientIP()) && info.getPort() == this.getPort();
 	}
 	
 }

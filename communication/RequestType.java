@@ -4,7 +4,13 @@ package communication;
  * The {@code RequestType} enum for type of a request
  */
 public enum RequestType {
-    TEST("test");
+    TEST("test"),
+    AVAILABILITY("availability"),
+    BOOK("book"),
+    SHIFT("shift"),
+    REGISTER("register"),
+    CANCEL("cancel"),
+    EXTEND("extend");
 
     public final String type;
 

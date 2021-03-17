@@ -7,8 +7,16 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import backend.FacilityManager;
+import backend.Message;
+import backend.RegisteredClientInfo;
+import backend.WeekDay;
 import marshalling.Marshaller;
 import marshalling.Unmarshaller;
 
@@ -33,14 +41,22 @@ public class Server {
 
     public static void main(String[] args) throws Exception {
         boolean end = false;
+        boolean updated = false;
+        String updatedFacility = null;
         Server server = new Server(Constants.SERVER_PORT, Constants.INVOCATION_METHOD);
         // request packet from client
         DatagramPacket requestPacket = null;
+
+        // initialize FacilityManager
+        FacilityManager manager = FacilityManager.getInstance();
+        manager.initializeDummyData();
 
         while (!end) {
             try {
                 requestPacket = server.receive();
                 boolean handled = false;
+                Response response = null;
+                byte[] buffer = null;
 
                 // get general request and details from client
                 Request request = (Request) Unmarshaller.unmarshal(requestPacket.getData());
@@ -59,14 +75,65 @@ public class Server {
                             TestRequest t = (TestRequest) request;
                             System.out.println("request id: " + t.id + ", request method: " + t.type
                                 + ", request content: " + Arrays.toString(t.content));
-                            TestResponse response = new TestResponse(request.id, Status.OK.label, "received");
+                            response = new TestResponse(request.id, Status.OK.label, "received");
                             server.requestResponseMap.put(request.id, response);
-                            byte[] buffer = Marshaller.marshal((TestResponse) response);
+                            buffer = Marshaller.marshal((TestResponse) response);
+                            server.send(buffer, clientAddress, clientPort);
+                            break;
+                        case AVAILABILITY:
+                            AvailabilityRequest a = (AvailabilityRequest) request;
+                            List<WeekDay> days = Arrays.stream(a.days)
+                                .mapToObj(i -> WeekDay.fromInt(i)).collect(Collectors.toList());
+                            String content = manager.getAvailabilityInString(a.facility, days);
+                            response = new AvailabilityResponse(a.id, Status.OK.label, content);
+                            buffer = Marshaller.marshal((AvailabilityResponse) response);
+                            server.send(buffer, clientAddress, clientPort);
+                            break;
+                        case BOOK:
+                            BookRequest b = (BookRequest) request;
+                            Message bMess = manager.bookFacility(clientAddress.toString(), b.facility, WeekDay.fromInt(b.day), b.time);
+                            response = new BookResponse(b.id, Status.OK.label, bMess.getMessage());
+                            buffer = Marshaller.marshal((BookResponse) response);
+                            server.send(buffer, clientAddress, clientPort);
+                            if (bMess.getStatus()) {
+                                updated = true;
+                                updatedFacility = b.facility;
+                            }
+                            break;
+                        case SHIFT:
+                            ShiftRequest s = (ShiftRequest) request;
+                            Message sMess = manager.shiftBooking(clientAddress.toString(), s.bookingId, s.postpone == 0, s.period);
+                            response = new ShiftResponse(s.id, Status.OK.label, sMess.getMessage());
+                            buffer = Marshaller.marshal((ShiftResponse) response);
+                            server.send(buffer, clientAddress, clientPort);
+                            if (sMess.getStatus()) {
+                                updated = true;
+                                updatedFacility = "PDR 1";
+                            }
+                            break;
+                        case REGISTER:
+                            RegisterRequest r = (RegisterRequest) request;
+                            Message rMess = manager.registerUser(clientAddress.getHostAddress(), clientPort, r.facility, r.interval*60);
+                            response = new RegisterResponse(r.id, Status.OK.label, rMess.getMessage(), r.interval);
+                            buffer = Marshaller.marshal((RegisterResponse) response);
                             server.send(buffer, clientAddress, clientPort);
                             break;
                         default: break;
                     }
                 }
+
+                if (updated) {
+                    Hashtable<String, Set<RegisteredClientInfo>> mapFacilityUser = manager.getMapFacilityUser();
+                    for (RegisteredClientInfo info : mapFacilityUser.get(updatedFacility)) {
+                        clientAddress = InetAddress.getByName(info.getClientIP());
+                        clientPort = info.getPort();
+                        String mess = manager.callBack(updatedFacility);
+                        response = new RegisterResponse(IdGenerator.getNewId(), Status.OK.label, mess, info.getInterval());
+                        buffer = Marshaller.marshal((RegisterResponse) response);
+                        server.send(buffer, clientAddress, clientPort);
+                    }
+                }
+
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 end = true;
@@ -89,6 +156,22 @@ public class Server {
                     // System.out.println("request id: " + t.id + ", request method: " + t.method
                     //     + ", request content: " + Arrays.toString(t.content));
                     byte[] buffer = Marshaller.marshal((TestResponse) response);
+                    this.send(buffer, address, port);
+                    break;
+                case AVAILABILITY:
+                    buffer = Marshaller.marshal((AvailabilityResponse) response);
+                    this.send(buffer, address, port);
+                    break;
+                case BOOK:
+                    buffer = Marshaller.marshal((BookResponse) response);
+                    this.send(buffer, address, port);
+                    break;
+                case SHIFT:
+                    buffer = Marshaller.marshal((ShiftResponse) response);
+                    this.send(buffer, address, port);
+                    break;
+                case REGISTER:
+                    buffer = Marshaller.marshal((RegisterResponse) response);
                     this.send(buffer, address, port);
                     break;
                 default: break;

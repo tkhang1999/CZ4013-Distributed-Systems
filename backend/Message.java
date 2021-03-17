@@ -10,7 +10,7 @@ public class Message {
 		this.message = message;
 	}
 	
-	public boolean isStatus() {
+	public boolean getStatus() {
 		return status;
 	}
 	public void setStatus(boolean status) {

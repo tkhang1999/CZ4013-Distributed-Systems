@@ -7,9 +7,11 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.TimeoutException;
 
+import backend.WeekDay;
 import marshalling.Marshaller;
 import marshalling.Unmarshaller;
 
@@ -43,10 +45,26 @@ public class Client {
         // initiate a scanner for reading user's input
         Scanner sc = new Scanner(System.in);
 
+        // display welcome message and list of services
+        System.out.println("\n***************************************************");
+        System.out.println("******WELCOME TO OUR FACILITY BOOKING SERVICE******");
+        System.out.println("***************************************************\n");
+
         boolean end = false;
 
         while (!end) {
-            // read user's input
+            String services = "----------------------------------------------------------------\n" +
+                "Please choose a service by typing [0-6]:\n" +
+                "1: Query the availability of the facility\n" +
+                "2: Book a time slot at the facility\n" +
+                "3: Postpone or advance the booking time\n" +
+                "4: Register to receive availability updates of the facility\n" +
+                "5: Cancel your booking\n" +
+                "6: Extend your booking\n" +
+                "0: Stop the client\n";
+            System.out.println(services);
+    
+            // read user's input for service type
             String input = sc.nextLine();
             int serviceType = Integer.parseInt(input);
 
@@ -59,6 +77,30 @@ public class Client {
                     requestBuffer = constructTestRequest(sc);
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleTestResponse(responseBuffer);
+                    break;
+                case Constants.AVAILABILITY_SERVICE:
+                    requestBuffer = constructAvailabilityRequest(sc);
+                    responseBuffer = client.sendAndReceive(requestBuffer);
+                    handleAvailabilityResponse(responseBuffer);
+                    break;
+                case Constants.BOOK_SERVICE:
+                    requestBuffer = constructBookRequest(sc);
+                    responseBuffer = client.sendAndReceive(requestBuffer);
+                    handleBookResponse(responseBuffer);
+                    break;
+                case Constants.SHIFT_SERVICE:
+                    requestBuffer = constructShiftRequest(sc);
+                    responseBuffer = client.sendAndReceive(requestBuffer);
+                    handleShiftResponse(responseBuffer);
+                    break;
+                case Constants.REGISTER_SERVICE:
+                    requestBuffer = constructRegisterRequest(sc);
+                    responseBuffer = client.sendAndReceive(requestBuffer);
+                    handleRegisterResponse(responseBuffer, client);
+                    break;
+                case Constants.CANCEL_SERVICE:
+                    break;
+                case Constants.EXTEND_SERVICE:
                     break;
                 case Constants.END_SERVICE:
                     end = true;
@@ -86,10 +128,130 @@ public class Client {
         return buffer;
     }
 
+    private static byte[] constructAvailabilityRequest(Scanner sc) {
+        System.out.println("Enter facility name: ");
+        String facility = sc.nextLine();
+    
+        String days = "----------------------------------------------------------------\n" +
+        "Please choose one or multiple days:\n" +
+            WeekDay.MONDAY.getIntValue() + ": " + WeekDay.MONDAY.toString() + "\n" +
+            WeekDay.TUESDAY.getIntValue() + ": " + WeekDay.TUESDAY.toString() + "\n" +
+            WeekDay.WEDNESDAY.getIntValue() + ": " + WeekDay.WEDNESDAY.toString() + "\n" +
+            WeekDay.THURSDAY.getIntValue() + ": " + WeekDay.THURSDAY.toString() + "\n" +
+            WeekDay.FRIDAY.getIntValue() + ": " + WeekDay.FRIDAY.toString() + "\n" +
+            WeekDay.SATURDAY.getIntValue() + ": " + WeekDay.SATURDAY.toString() + "\n" +
+            WeekDay.SUNDAY.getIntValue() + ": " + WeekDay.SUNDAY.toString() + "\n";
+            System.out.println(days);
+        System.out.println("Enter a list of chosen days (seperated by spaces): ");
+        int[] selectedDays = Arrays.asList(sc.nextLine().split(" ")).stream()
+            .mapToInt(Integer::parseInt).toArray();
+
+        AvailabilityRequest request = new AvailabilityRequest(IdGenerator.getNewId(), facility, selectedDays);
+        byte[] buffer = Marshaller.marshal(request);
+
+        return buffer;
+    }
+
+    private static byte[] constructShiftRequest(Scanner sc) {
+        System.out.println("Enter booking id: ");
+        String bookingId = sc.nextLine();
+        System.out.println("Postpone(0) or Advance(1): ");
+        int postpone = Integer.parseInt(sc.nextLine());
+        System.out.println("Shift period (minutes): ");
+        int period = Integer.parseInt(sc.nextLine());
+        
+        ShiftRequest request = new ShiftRequest(IdGenerator.getNewId(), bookingId, postpone, period);
+        byte[] buffer = Marshaller.marshal(request);
+
+        return buffer;
+    }
+
+    private static byte[] constructBookRequest(Scanner sc) {
+        System.out.println("Enter facility name: ");
+        String facility = sc.nextLine();
+        String days = "----------------------------------------------------------------\n" +
+            "Please choose one day:\n" +
+            WeekDay.MONDAY.getIntValue() + ": " + WeekDay.MONDAY.toString() + "\n" +
+            WeekDay.TUESDAY.getIntValue() + ": " + WeekDay.TUESDAY.toString() + "\n" +
+            WeekDay.WEDNESDAY.getIntValue() + ": " + WeekDay.WEDNESDAY.toString() + "\n" +
+            WeekDay.THURSDAY.getIntValue() + ": " + WeekDay.THURSDAY.toString() + "\n" +
+            WeekDay.FRIDAY.getIntValue() + ": " + WeekDay.FRIDAY.toString() + "\n" +
+            WeekDay.SATURDAY.getIntValue() + ": " + WeekDay.SATURDAY.toString() + "\n" +
+            WeekDay.SUNDAY.getIntValue() + ": " + WeekDay.SUNDAY.toString() + "\n";
+        System.out.println(days);
+        System.out.println("Enter day: ");
+        int day = Integer.parseInt(sc.nextLine());
+        System.out.println("Enter start and end time (between 0:00 and 23:59): ");
+        String time = sc.nextLine();
+
+        BookRequest request = new BookRequest(IdGenerator.getNewId(), facility, day, time);
+        byte[] buffer = Marshaller.marshal(request);
+
+        return buffer;
+    }
+
+    private static byte[] constructRegisterRequest(Scanner sc) {
+        System.out.println("Enter facility name: ");
+        String facility = sc.nextLine();
+        System.out.println("Enter monitor interval (in minutes): ");
+        int interval = Integer.parseInt(sc.nextLine());
+
+        RegisterRequest request = new RegisterRequest(IdGenerator.getNewId(), facility, interval);
+        byte[] buffer = Marshaller.marshal(request);
+
+        return buffer;
+    }
+
     private static void handleTestResponse(byte[] responseBuffer) {
         TestResponse response = (TestResponse) Unmarshaller.unmarshal(responseBuffer);
         System.out.println("response id: " + response.id + ", response status: " + response.status
             + ", response content: " + response.content);
+    }
+
+    private static void handleAvailabilityResponse(byte[] responseBuffer) {
+        AvailabilityResponse response = (AvailabilityResponse) Unmarshaller.unmarshal(responseBuffer);
+        System.out.println("\nFacility availability:");
+        System.out.println(response.content);
+    }
+
+    private static void handleBookResponse(byte[] responseBuffer) {
+        BookResponse response = (BookResponse) Unmarshaller.unmarshal(responseBuffer);
+        System.out.println("\nBooking status:");
+        System.out.println(response.status);
+        System.out.println(response.content);
+    }
+
+    private static void handleShiftResponse(byte[] responseBuffer) {
+        ShiftResponse response = (ShiftResponse) Unmarshaller.unmarshal(responseBuffer);
+        System.out.println("\nShift status:");
+        System.out.println(response.status);
+        System.out.println(response.content);
+    }
+
+    private static void handleRegisterResponse(byte[] responseBuffer, Client client) throws SocketException {
+        RegisterResponse response = (RegisterResponse) Unmarshaller.unmarshal(responseBuffer);
+        System.out.println("\nRegister status:");
+        System.out.println(response.status);
+        System.out.println(response.interval);
+        System.out.println(response.content);
+
+        Long t = System.currentTimeMillis();
+        Long end = t + response.interval*60000;
+        while(System.currentTimeMillis() < end) {
+            try {
+                client.socket.setSoTimeout(Long.valueOf(end - t).intValue());
+                byte[] buffer = client.receive();
+                response = (RegisterResponse) Unmarshaller.unmarshal(buffer);
+                System.out.println("\nNotification:");
+                System.out.println(response.status);
+                System.out.println(response.interval);
+                System.out.println(response.content);
+            } catch (Exception se) {
+                se.printStackTrace();
+            }
+        }
+
+        client.socket.setSoTimeout(Constants.TIME_OUT);
     }
 
     private void send(byte[] request) throws IOException {

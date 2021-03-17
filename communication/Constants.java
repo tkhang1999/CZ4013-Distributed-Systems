@@ -9,6 +9,12 @@ public final class Constants {
     public static final int BUFFER_LENGTH = 512;
     public static final InvocationMethod INVOCATION_METHOD = InvocationMethod.AT_MOST_ONCE;
 
-    public static final int SAMPLE_SERVICE = 0;
-    public static final int END_SERVICE = -1;
+    public static final int SAMPLE_SERVICE = -1;
+    public static final int AVAILABILITY_SERVICE = 1;
+    public static final int BOOK_SERVICE = 2;
+    public static final int SHIFT_SERVICE = 3;
+    public static final int REGISTER_SERVICE = 4;
+    public static final int CANCEL_SERVICE = 5;
+    public static final int EXTEND_SERVICE = 6;
+    public static final int END_SERVICE = 0;
 }

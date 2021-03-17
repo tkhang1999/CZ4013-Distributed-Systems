@@ -7,6 +7,15 @@ public enum WeekDay {
 	private WeekDay(int value) {
 		this.value = value;
 	}
+
+    public static WeekDay fromInt(int i) {
+        for (WeekDay wd : WeekDay.values()) {
+            if (wd.getIntValue() == i) {
+                return wd;
+            }
+        }
+        return null;
+    }
 	
 	public int getIntValue() {
 		return this.value;

@@ -1,6 +1,7 @@
 package backend;
 
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,9 +20,6 @@ import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
-
 public class FacilityManager {
 	
 	private static FacilityManager facilityManager = null;
@@ -32,7 +30,7 @@ public class FacilityManager {
 	
 	
 	//map facility to users who register that facility
-	private Hashtable<String, Set<RegisteredClientInfo>> mapFacilityUser = new Hashtable(); 
+	private Hashtable<String, Set<RegisteredClientInfo>> mapFacilityUser = new Hashtable<>(); 
 	
 	public static void main(String[] args) {
 		FacilityManager manager = getInstance();
@@ -95,7 +93,7 @@ public class FacilityManager {
 		thread.start();
 	}
 	
-	private void initializeDummyData() {
+	public void initializeDummyData() {
 		facilities.add(new Facility("Table tennis 1"));
 		facilities.add(new Facility("Table tennis 2"));
 		facilities.add(new Facility("Table tennis 3"));
@@ -134,6 +132,16 @@ public class FacilityManager {
 		}
 		return sb.toString();
 	}
+
+	public Message bookFacility(String user, String facilityName, WeekDay day, String timePeriod) {
+		String[] time = timePeriod.split(" ");
+		int start = Utils.convertTimeToMinutes(time[0]);
+		int end = Utils.convertTimeToMinutes(time[1]);
+		if (start > end) {
+			return new Message(false, "Invalid time input");
+		}
+		return this.bookFacility(user, facilityName, day, new TimePeriod(start, end));
+	}
 	
 	
 	public Message bookFacility(String user, String facilityName, WeekDay day, TimePeriod timePeriod) {
@@ -144,7 +152,7 @@ public class FacilityManager {
 			success = fac.bookTime(timePeriod, day);
 			if (success) {
 				UUID id = UUID.randomUUID();
-				message = id.toString();
+				message = "Success with booking id: "+id.toString();
 				if (!userBookingMap.containsKey(user)) {
 					userBookingMap.put(user, new ArrayList<>());
 				}
@@ -192,23 +200,26 @@ public class FacilityManager {
 		return null;
 	}
 	
-	public Message registerUser(String user, String port, String facilityName, int interval) {
+	public Message registerUser(String address, int port, String facilityName, int interval) {
 		boolean success = false;
 		String message = "Incorrect facility name";
 		if (getFacility(facilityName) != null) {
 			if (!mapFacilityUser.containsKey(facilityName)) {
 				mapFacilityUser.put(facilityName, Collections.synchronizedSet(new HashSet<>()));
 			}
-			mapFacilityUser.get(facilityName).add(new RegisteredClientInfo(user, port, interval));
+			mapFacilityUser.get(facilityName).add(new RegisteredClientInfo(address, port, interval));
 			message = "Successfully registered";
 		}
 		return new Message(success, message);
 	}
 	
-	public void callBack(String facilityName) {
+	public Hashtable<String, Set<RegisteredClientInfo>> getMapFacilityUser() {
+		return mapFacilityUser;
+	}
+
+	public String callBack(String facilityName) {
 		String message = getAvailabilityInString(facilityName, new ArrayList(Arrays.asList(WeekDay.values())));
-		//TODO: send back to client
-		System.out.println("update to registered client");
+		return message;
 	}
 	
 	

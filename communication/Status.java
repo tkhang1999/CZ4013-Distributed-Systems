@@ -7,6 +7,7 @@ public enum Status {
     OK("Ok"),
     DUPLICATE("Duplicate request"),
     NOT_FOUND("Service not found"),
+    INVALID("Invalid request"),
     INTERNAL_ERR("Internal server error");
 
     public final String label;
