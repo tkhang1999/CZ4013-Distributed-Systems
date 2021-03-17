@@ -65,7 +65,7 @@ public class Client {
             System.out.println(services);
     
             // read user's input for service type
-            String input = sc.nextLine();
+            String input = sc.nextLine().trim();
             int serviceType = Integer.parseInt(input);
 
             // buffer for request and response
@@ -74,33 +74,74 @@ public class Client {
 
             switch (serviceType) {
                 case Constants.SAMPLE_SERVICE:
-                    requestBuffer = constructTestRequest(sc);
+                	try {
+                		requestBuffer = constructTestRequest(sc);
+                	} catch (Exception e) {
+                		System.out.println("Cannot construct request due to invalid input");
+                		break;
+                	}
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleTestResponse(responseBuffer);
                     break;
                 case Constants.AVAILABILITY_SERVICE:
-                    requestBuffer = constructAvailabilityRequest(sc);
+                	try {
+	                    requestBuffer = constructAvailabilityRequest(sc);
+		            } catch (Exception e) {
+		        		System.out.println("Cannot construct request due to invalid input");
+		        		break;
+		        	}
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleAvailabilityResponse(responseBuffer);
                     break;
                 case Constants.BOOK_SERVICE:
-                    requestBuffer = constructBookRequest(sc);
+                	try {
+                		requestBuffer = constructBookRequest(sc);
+                	} catch (Exception e) {
+                		System.out.println("Cannot construct request due to invalid input");
+                		break;
+                	}
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleBookResponse(responseBuffer);
                     break;
                 case Constants.SHIFT_SERVICE:
-                    requestBuffer = constructShiftRequest(sc);
+                	try {
+                		requestBuffer = constructShiftRequest(sc);
+                	} catch (Exception e) {
+                		System.out.println("Cannot construct request due to invalid input");
+                		break;
+                	}
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleShiftResponse(responseBuffer);
                     break;
                 case Constants.REGISTER_SERVICE:
-                    requestBuffer = constructRegisterRequest(sc);
+                	try {
+                		requestBuffer = constructRegisterRequest(sc);
+                	} catch (Exception e) {
+                		System.out.println("Cannot construct request due to invalid input");
+                		break;
+                	}
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleRegisterResponse(responseBuffer, client);
                     break;
                 case Constants.CANCEL_SERVICE:
+                	try {
+                		requestBuffer = constructCancelRequest(sc);
+                	} catch (Exception e) {
+                		System.out.println("Cannot construct request due to invalid input");
+                		break;
+                	}
+                	responseBuffer = client.sendAndReceive(requestBuffer);
+                	handleCancelResponse(responseBuffer);
                     break;
                 case Constants.EXTEND_SERVICE:
+                	try {
+                		requestBuffer = constructExtendRequest(sc);
+                	} catch (Exception e) {
+                		System.out.println("Cannot construct request due to invalid input");
+                		break;
+                	}
+                	responseBuffer = client.sendAndReceive(requestBuffer);
+                	handleExtendResponse(responseBuffer);
                     break;
                 case Constants.END_SERVICE:
                     end = true;
@@ -117,7 +158,7 @@ public class Client {
     }
 
     private static byte[] constructTestRequest(Scanner sc) {
-        // String input = sc.nextLine();
+        // String input = sc.nextLine().trim();
         float[] content = {15, 24, 6};
         // SAMPLE request
         TestRequest request = new TestRequest(IdGenerator.getNewId(), content);
@@ -130,7 +171,7 @@ public class Client {
 
     private static byte[] constructAvailabilityRequest(Scanner sc) {
         System.out.println("Enter facility name: ");
-        String facility = sc.nextLine();
+        String facility = sc.nextLine().trim();
     
         String days = "----------------------------------------------------------------\n" +
         "Please choose one or multiple days:\n" +
@@ -143,7 +184,7 @@ public class Client {
             WeekDay.SUNDAY.getIntValue() + ": " + WeekDay.SUNDAY.toString() + "\n";
             System.out.println(days);
         System.out.println("Enter a list of chosen days (seperated by spaces): ");
-        int[] selectedDays = Arrays.asList(sc.nextLine().split(" ")).stream()
+        int[] selectedDays = Arrays.asList(sc.nextLine().trim().split("[ ]+")).stream()
             .mapToInt(Integer::parseInt).toArray();
 
         AvailabilityRequest request = new AvailabilityRequest(IdGenerator.getNewId(), facility, selectedDays);
@@ -154,11 +195,11 @@ public class Client {
 
     private static byte[] constructShiftRequest(Scanner sc) {
         System.out.println("Enter booking id: ");
-        String bookingId = sc.nextLine();
+        String bookingId = sc.nextLine().trim();
         System.out.println("Postpone(0) or Advance(1): ");
-        int postpone = Integer.parseInt(sc.nextLine());
+        int postpone = Integer.parseInt(sc.nextLine().trim());
         System.out.println("Shift period (minutes): ");
-        int period = Integer.parseInt(sc.nextLine());
+        int period = Integer.parseInt(sc.nextLine().trim());
         
         ShiftRequest request = new ShiftRequest(IdGenerator.getNewId(), bookingId, postpone, period);
         byte[] buffer = Marshaller.marshal(request);
@@ -168,7 +209,7 @@ public class Client {
 
     private static byte[] constructBookRequest(Scanner sc) {
         System.out.println("Enter facility name: ");
-        String facility = sc.nextLine();
+        String facility = sc.nextLine().trim();
         String days = "----------------------------------------------------------------\n" +
             "Please choose one day:\n" +
             WeekDay.MONDAY.getIntValue() + ": " + WeekDay.MONDAY.toString() + "\n" +
@@ -180,9 +221,9 @@ public class Client {
             WeekDay.SUNDAY.getIntValue() + ": " + WeekDay.SUNDAY.toString() + "\n";
         System.out.println(days);
         System.out.println("Enter day: ");
-        int day = Integer.parseInt(sc.nextLine());
+        int day = Integer.parseInt(sc.nextLine().trim());
         System.out.println("Enter start and end time (between 0:00 and 23:59): ");
-        String time = sc.nextLine();
+        String time = sc.nextLine().trim();
 
         BookRequest request = new BookRequest(IdGenerator.getNewId(), facility, day, time);
         byte[] buffer = Marshaller.marshal(request);
@@ -192,11 +233,33 @@ public class Client {
 
     private static byte[] constructRegisterRequest(Scanner sc) {
         System.out.println("Enter facility name: ");
-        String facility = sc.nextLine();
+        String facility = sc.nextLine().trim();
         System.out.println("Enter monitor interval (in minutes): ");
-        int interval = Integer.parseInt(sc.nextLine());
+        int interval = Integer.parseInt(sc.nextLine().trim());
 
         RegisterRequest request = new RegisterRequest(IdGenerator.getNewId(), facility, interval);
+        byte[] buffer = Marshaller.marshal(request);
+
+        return buffer;
+    }
+    
+    private static byte[] constructCancelRequest(Scanner sc) {
+    	System.out.println("Enter booking id: ");
+    	String bookingId = sc.nextLine().trim();
+    	CancelRequest request = new CancelRequest(IdGenerator.getNewId(), bookingId);
+        byte[] buffer = Marshaller.marshal(request);
+        return buffer;
+    }
+    
+    private static byte[] constructExtendRequest(Scanner sc) {
+    	System.out.println("Enter booking id: ");
+        String bookingId = sc.nextLine().trim();
+        System.out.println("sooner(0) or later(1): ");
+        int sooner = Integer.parseInt(sc.nextLine().trim());
+        System.out.println("Extend period (minutes): ");
+        int period = Integer.parseInt(sc.nextLine().trim());
+        
+        ExtendRequest request = new ExtendRequest(IdGenerator.getNewId(), bookingId, sooner, period);
         byte[] buffer = Marshaller.marshal(request);
 
         return buffer;
@@ -210,6 +273,11 @@ public class Client {
 
     private static void handleAvailabilityResponse(byte[] responseBuffer) {
         AvailabilityResponse response = (AvailabilityResponse) Unmarshaller.unmarshal(responseBuffer);
+        if (! response.status.equals(Status.OK.label)) {
+        	System.out.println(response.status);
+        	System.out.println(response.content);
+        	return;
+        }
         System.out.println("\nFacility availability:");
         System.out.println(response.content);
     }
@@ -230,6 +298,11 @@ public class Client {
 
     private static void handleRegisterResponse(byte[] responseBuffer, Client client) throws SocketException {
         RegisterResponse response = (RegisterResponse) Unmarshaller.unmarshal(responseBuffer);
+        if (! response.status.equals(Status.OK.label)) {
+        	System.out.println(response.status);
+        	System.out.println(response.content);
+        	return;
+        }
         System.out.println("\nRegister status:");
         System.out.println(response.status);
         System.out.println(response.interval);
@@ -247,11 +320,26 @@ public class Client {
                 System.out.println(response.interval);
                 System.out.println(response.content);
             } catch (Exception se) {
-                se.printStackTrace();
+            	System.out.println("Monitor interval passed");
+//                se.printStackTrace();
             }
         }
 
         client.socket.setSoTimeout(Constants.TIME_OUT);
+    }
+    
+    private static void handleCancelResponse(byte[] responseBuffer) {
+    	CancelResponse response = (CancelResponse) Unmarshaller.unmarshal(responseBuffer);
+    	System.out.println("\nCancel status:");
+    	System.out.println(response.status);
+    	System.out.println(response.content);
+    }
+    
+    private static void handleExtendResponse(byte[] responseBuffer) {
+    	ExtendResponse response = (ExtendResponse) Unmarshaller.unmarshal(responseBuffer);
+    	System.out.println("\nExtend status:");
+    	System.out.println(response.status);
+    	System.out.println(response.content);
     }
 
     private void send(byte[] request) throws IOException {

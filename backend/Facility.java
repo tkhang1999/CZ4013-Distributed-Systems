@@ -16,7 +16,7 @@ public class Facility implements Serializable{
 	private HashMap<WeekDay, List<TimePeriod>> availableBookingTime;
 	
 	public Facility(String name) {
-		this.name = name;
+		this.name = name.toUpperCase();
 		this.availableBookingTime = new HashMap<>();
 		for (WeekDay weekday: WeekDay.values()) {
 			availableBookingTime.put(weekday, new ArrayList<>(Arrays.asList(WORKING_HOURS.clone())));

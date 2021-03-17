@@ -31,7 +31,11 @@ public class Server {
     // which will be required in case At-most-once invocation method is used
     private Map<Integer, Response> requestResponseMap;
     private double failProb;
-
+    
+    public static boolean updated = false;
+    public static String updatedFacility = null;
+    
+        
     private Server(int port, InvocationMethod invocation) throws SocketException {
         this.socket = new DatagramSocket(port);
         this.invocation = invocation;
@@ -41,8 +45,7 @@ public class Server {
 
     public static void main(String[] args) throws Exception {
         boolean end = false;
-        boolean updated = false;
-        String updatedFacility = null;
+        
         Server server = new Server(Constants.SERVER_PORT, Constants.INVOCATION_METHOD);
         // request packet from client
         DatagramPacket requestPacket = null;
@@ -50,7 +53,7 @@ public class Server {
         // initialize FacilityManager
         FacilityManager manager = FacilityManager.getInstance();
         manager.initializeDummyData();
-
+        String invalid_input = "Invalid user input";
         while (!end) {
             try {
                 requestPacket = server.receive();
@@ -82,40 +85,70 @@ public class Server {
                             break;
                         case AVAILABILITY:
                             AvailabilityRequest a = (AvailabilityRequest) request;
-                            List<WeekDay> days = Arrays.stream(a.days)
-                                .mapToObj(i -> WeekDay.fromInt(i)).collect(Collectors.toList());
-                            String content = manager.getAvailabilityInString(a.facility, days);
-                            response = new AvailabilityResponse(a.id, Status.OK.label, content);
+                            try {
+	                            List<WeekDay> days = Arrays.stream(a.days)
+	                                .mapToObj(i -> WeekDay.fromInt(i)).collect(Collectors.toList());
+	                            String content = manager.getAvailabilityInString(a.facility, days);
+	                            response = new AvailabilityResponse(a.id, Status.OK.label, content);
+                            } catch (Exception e) {
+                            	response = new AvailabilityResponse(a.id, Status.INVALID.label, invalid_input);
+                            }
                             buffer = Marshaller.marshal((AvailabilityResponse) response);
                             server.send(buffer, clientAddress, clientPort);
                             break;
                         case BOOK:
-                            BookRequest b = (BookRequest) request;
-                            Message bMess = manager.bookFacility(clientAddress.toString(), b.facility, WeekDay.fromInt(b.day), b.time);
-                            response = new BookResponse(b.id, Status.OK.label, bMess.getMessage());
+	                        BookRequest b = (BookRequest) request;
+	                        try {
+	                            Message bMess = manager.bookFacility(clientAddress.toString(), b.facility, WeekDay.fromInt(b.day), b.time);
+	                            response = new BookResponse(b.id, Status.OK.label, bMess.getMessage());
+		                    } catch (Exception e) {
+		                    	response = new BookResponse(b.id, Status.INVALID.label, invalid_input);
+		                    }
                             buffer = Marshaller.marshal((BookResponse) response);
                             server.send(buffer, clientAddress, clientPort);
-                            if (bMess.getStatus()) {
-                                updated = true;
-                                updatedFacility = b.facility;
-                            }
                             break;
                         case SHIFT:
                             ShiftRequest s = (ShiftRequest) request;
-                            Message sMess = manager.shiftBooking(clientAddress.toString(), s.bookingId, s.postpone == 0, s.period);
-                            response = new ShiftResponse(s.id, Status.OK.label, sMess.getMessage());
+                            try {
+	                            Message sMess = manager.shiftBooking(clientAddress.toString(), s.bookingId, s.postpone == 0, s.period);
+	                            response = new ShiftResponse(s.id, Status.OK.label, sMess.getMessage());
+                            } catch (Exception e) {
+                            	response = new ShiftResponse(s.id, Status.INVALID.label, invalid_input);
+                            }
                             buffer = Marshaller.marshal((ShiftResponse) response);
                             server.send(buffer, clientAddress, clientPort);
-                            if (sMess.getStatus()) {
-                                updated = true;
-                                updatedFacility = "PDR 1";
-                            }
                             break;
                         case REGISTER:
                             RegisterRequest r = (RegisterRequest) request;
-                            Message rMess = manager.registerUser(clientAddress.getHostAddress(), clientPort, r.facility, r.interval*60);
-                            response = new RegisterResponse(r.id, Status.OK.label, rMess.getMessage(), r.interval);
+                            try {
+	                            Message rMess = manager.registerUser(clientAddress.getHostAddress(), clientPort, r.facility, r.interval*60);
+	                            response = new RegisterResponse(r.id, Status.OK.label, rMess.getMessage(), r.interval);
+                            } catch (Exception e) {
+                            	response = new RegisterResponse(r.id, Status.INVALID.label, invalid_input, 0);
+                            }
                             buffer = Marshaller.marshal((RegisterResponse) response);
+                            server.send(buffer, clientAddress, clientPort);
+                            break;
+                        case CANCEL:
+                            CancelRequest c = (CancelRequest) request;
+                            try {
+	                            Message cMess = manager.cancelBooking(clientAddress.toString(), c.bookingId);
+	                            response = new CancelResponse(c.id, Status.OK.label, cMess.getMessage());
+                            } catch (Exception e) {
+                            	response = new CancelResponse(c.id, Status.INVALID.label, invalid_input);
+                            }
+                            buffer = Marshaller.marshal((CancelResponse) response);
+                            server.send(buffer, clientAddress, clientPort);
+                            break;
+                        case EXTEND:
+                            ExtendRequest e = (ExtendRequest) request;
+                            try {
+	                            Message eMess = manager.extendBookingTime(clientAddress.toString(), e.bookingId, e.sooner == 0, e.period);
+	                            response = new ExtendResponse(e.id, Status.OK.label, eMess.getMessage());
+                            } catch (Exception ex) {
+                            	response = new ExtendResponse(e.id, Status.INVALID.label, invalid_input);
+                            }
+                            buffer = Marshaller.marshal((ExtendResponse) response);
                             server.send(buffer, clientAddress, clientPort);
                             break;
                         default: break;
@@ -124,14 +157,17 @@ public class Server {
 
                 if (updated) {
                     Hashtable<String, Set<RegisteredClientInfo>> mapFacilityUser = manager.getMapFacilityUser();
-                    for (RegisteredClientInfo info : mapFacilityUser.get(updatedFacility)) {
-                        clientAddress = InetAddress.getByName(info.getClientIP());
-                        clientPort = info.getPort();
-                        String mess = manager.callBack(updatedFacility);
-                        response = new RegisterResponse(IdGenerator.getNewId(), Status.OK.label, mess, info.getInterval());
-                        buffer = Marshaller.marshal((RegisterResponse) response);
-                        server.send(buffer, clientAddress, clientPort);
+                    if (mapFacilityUser.containsKey(updatedFacility)) {
+	                    for (RegisteredClientInfo info : mapFacilityUser.get(updatedFacility)) {
+	                        clientAddress = InetAddress.getByName(info.getClientIP());
+	                        clientPort = info.getPort();
+	                        String mess = manager.getNotifiedMessage(updatedFacility);
+	                        response = new RegisterResponse(IdGenerator.getNewId(), Status.OK.label, mess, info.getInterval());
+	                        buffer = Marshaller.marshal((RegisterResponse) response);
+	                        server.send(buffer, clientAddress, clientPort);
+	                    }
                     }
+                    updated = false;
                 }
 
             } catch (IOException ioe) {
@@ -174,6 +210,14 @@ public class Server {
                     buffer = Marshaller.marshal((RegisterResponse) response);
                     this.send(buffer, address, port);
                     break;
+                case CANCEL:
+                	buffer = Marshaller.marshal((CancelResponse) response);
+                	this.send(buffer, address, port);
+                	break;
+                case EXTEND:
+                	buffer = Marshaller.marshal((ExtendResponse) response);
+                	this.send(buffer, address, port);
+                	break;
                 default: break;
             }
 

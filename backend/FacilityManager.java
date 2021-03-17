@@ -20,6 +20,8 @@ import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import communication.Server;
+
 public class FacilityManager {
 	
 	private static FacilityManager facilityManager = null;
@@ -104,6 +106,7 @@ public class FacilityManager {
 	}
 	
 	public HashMap<WeekDay, List<TimePeriod>> getAvailability(String facilityName, List<WeekDay> weekDays){
+		facilityName = facilityName.toUpperCase();
 		Facility fac = getFacility(facilityName);
 		HashMap<WeekDay, List<TimePeriod>> result = new HashMap<>();
 		if (fac != null) {
@@ -116,6 +119,7 @@ public class FacilityManager {
 	}
 	
 	public String getAvailabilityInString(String facilityName, List<WeekDay> weekDays) {
+		facilityName = facilityName.toUpperCase();
 		HashMap<WeekDay, List<TimePeriod>> availability = getAvailability(facilityName, weekDays);
 		if (availability == null) return "Incorrect facility name";
 		StringBuilder sb = new StringBuilder();
@@ -134,6 +138,7 @@ public class FacilityManager {
 	}
 
 	public Message bookFacility(String user, String facilityName, WeekDay day, String timePeriod) {
+		facilityName = facilityName.toUpperCase();
 		String[] time = timePeriod.split(" ");
 		int start = Utils.convertTimeToMinutes(time[0]);
 		int end = Utils.convertTimeToMinutes(time[1]);
@@ -147,6 +152,7 @@ public class FacilityManager {
 	public Message bookFacility(String user, String facilityName, WeekDay day, TimePeriod timePeriod) {
 		boolean success = false;
 		String message = "Incorrect facility name";
+		facilityName = facilityName.toUpperCase();
 		Facility fac = getFacility(facilityName);
 		if (fac != null) {
 			success = fac.bookTime(timePeriod, day);
@@ -157,7 +163,9 @@ public class FacilityManager {
 					userBookingMap.put(user, new ArrayList<>());
 				}
 				userBookingMap.get(user).add(new BookingInfo(id.toString(), day, timePeriod, fac.getName()));
-				callBack(facilityName);
+				Server.updated = true;
+				Server.updatedFacility = facilityName;
+//				getNotifiedMessage(facilityName);
 			} else {
 				message = "The time specified is not available";
 			}
@@ -180,7 +188,9 @@ public class FacilityManager {
 					if (success) {
 						message = "Successful change";
 						info.setTimePeriod(info.getTimePeriod().shiftBy(shiftTime));
-						callBack(info.getFacilityName());
+						Server.updated = true;
+						Server.updatedFacility = info.getFacilityName();
+//						getNotifiedMessage(info.getFacilityName());
 					} else {
 						message = "The changed time is not available";
 					}
@@ -193,6 +203,7 @@ public class FacilityManager {
 	}
 	
 	public Facility getFacility(String facilityName) {
+		facilityName = facilityName.toUpperCase();
 		for (Facility fac: facilities) {
 			if (fac.getName().equals(facilityName))
 				return fac;
@@ -203,6 +214,7 @@ public class FacilityManager {
 	public Message registerUser(String address, int port, String facilityName, int interval) {
 		boolean success = false;
 		String message = "Incorrect facility name";
+		facilityName = facilityName.toUpperCase();
 		if (getFacility(facilityName) != null) {
 			if (!mapFacilityUser.containsKey(facilityName)) {
 				mapFacilityUser.put(facilityName, Collections.synchronizedSet(new HashSet<>()));
@@ -217,7 +229,8 @@ public class FacilityManager {
 		return mapFacilityUser;
 	}
 
-	public String callBack(String facilityName) {
+	public String getNotifiedMessage(String facilityName) {
+		facilityName = facilityName.toUpperCase();
 		String message = getAvailabilityInString(facilityName, new ArrayList(Arrays.asList(WeekDay.values())));
 		return message;
 	}
@@ -227,6 +240,7 @@ public class FacilityManager {
 	public Message cancelBooking(String user, String bookingID) {
 		String message = "Invalid Booking ID";
 		boolean success = false;
+		bookingID = bookingID.trim();
 		if (userBookingMap.containsKey(user)) {
 			List<BookingInfo> bookingInfoList = userBookingMap.get(user);
 			int index = 0;
@@ -237,6 +251,8 @@ public class FacilityManager {
 					fac.releaseBookingTime(info.getTimePeriod(), info.getDay());
 					success = true;
 					message = "Successfully cancel";
+					Server.updated = true;
+					Server.updatedFacility = info.getFacilityName();
 					break;
 				}
 				index++;
@@ -265,7 +281,9 @@ public class FacilityManager {
 							info.setTimePeriod(new TimePeriod(start-extendTime, end));
 						else info.setTimePeriod(new TimePeriod(start, end+extendTime));
 						message = "Successfully extend";
-						callBack(info.getFacilityName());
+						Server.updated = true;
+						Server.updatedFacility = info.getFacilityName();
+//						getNotifiedMessage(info.getFacilityName());
 					} else message = "Cannot extend due to unavailable time";
 					break;
 				}
