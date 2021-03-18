@@ -26,7 +26,7 @@ public class FacilityManager {
 	
 	private static FacilityManager facilityManager = null;
 	private List<Facility> facilities = new ArrayList<>();
-	
+	private String updatedFacility = null;
 	//map user to their booking
 	public HashMap<String, List<BookingInfo>> userBookingMap = new HashMap<>();
 	
@@ -93,6 +93,14 @@ public class FacilityManager {
 			};
 		};
 		thread.start();
+	}
+	
+	public String getUpdatedFacility() {
+		return updatedFacility;
+	}
+	
+	public void setUpdatedFacility(String fac) {
+		updatedFacility = fac;
 	}
 	
 	public void initializeDummyData() {
@@ -163,8 +171,7 @@ public class FacilityManager {
 					userBookingMap.put(user, new ArrayList<>());
 				}
 				userBookingMap.get(user).add(new BookingInfo(id.toString(), day, timePeriod, fac.getName()));
-				Server.updated = true;
-				Server.updatedFacility = facilityName;
+				updatedFacility = facilityName;
 //				getNotifiedMessage(facilityName);
 			} else {
 				message = "The time specified is not available";
@@ -188,8 +195,8 @@ public class FacilityManager {
 					if (success) {
 						message = "Successful change";
 						info.setTimePeriod(info.getTimePeriod().shiftBy(shiftTime));
-						Server.updated = true;
-						Server.updatedFacility = info.getFacilityName();
+						
+						updatedFacility = info.getFacilityName();
 //						getNotifiedMessage(info.getFacilityName());
 					} else {
 						message = "The changed time is not available";
@@ -251,8 +258,7 @@ public class FacilityManager {
 					fac.releaseBookingTime(info.getTimePeriod(), info.getDay());
 					success = true;
 					message = "Successfully cancel";
-					Server.updated = true;
-					Server.updatedFacility = info.getFacilityName();
+					updatedFacility = info.getFacilityName();
 					break;
 				}
 				index++;
@@ -281,8 +287,7 @@ public class FacilityManager {
 							info.setTimePeriod(new TimePeriod(start-extendTime, end));
 						else info.setTimePeriod(new TimePeriod(start, end+extendTime));
 						message = "Successfully extend";
-						Server.updated = true;
-						Server.updatedFacility = info.getFacilityName();
+						updatedFacility = info.getFacilityName();
 //						getNotifiedMessage(info.getFacilityName());
 					} else message = "Cannot extend due to unavailable time";
 					break;

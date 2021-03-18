@@ -32,8 +32,6 @@ public class Server {
     private Map<Integer, Response> requestResponseMap;
     private double failProb;
     
-    public static boolean updated = false;
-    public static String updatedFacility = null;
     
         
     private Server(int port, InvocationMethod invocation) throws SocketException {
@@ -154,8 +152,9 @@ public class Server {
                         default: break;
                     }
                 }
-
-                if (updated) {
+                
+                String updatedFacility = manager.getUpdatedFacility();
+                if (updatedFacility != null) {
                     Hashtable<String, Set<RegisteredClientInfo>> mapFacilityUser = manager.getMapFacilityUser();
                     if (mapFacilityUser.containsKey(updatedFacility)) {
 	                    for (RegisteredClientInfo info : mapFacilityUser.get(updatedFacility)) {
@@ -167,7 +166,7 @@ public class Server {
 	                        server.send(buffer, clientAddress, clientPort);
 	                    }
                     }
-                    updated = false;
+                    manager.setUpdatedFacility(null);
                 }
 
             } catch (IOException ioe) {
