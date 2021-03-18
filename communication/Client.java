@@ -210,7 +210,7 @@ public class Client {
     private static byte[] constructBookRequest(Scanner sc) {
         System.out.println("Enter facility name: ");
         String facility = sc.nextLine().trim();
-        String days = "----------------------------------------------------------------\n" +
+        String days = "\n----------------------------------------------------------------\n" +
             "Please choose one day:\n" +
             WeekDay.MONDAY.getIntValue() + ": " + WeekDay.MONDAY.toString() + "\n" +
             WeekDay.TUESDAY.getIntValue() + ": " + WeekDay.TUESDAY.toString() + "\n" +
@@ -296,7 +296,7 @@ public class Client {
         System.out.println(response.content);
     }
 
-    private static void handleRegisterResponse(byte[] responseBuffer, Client client) throws SocketException {
+    private static void handleRegisterResponse(byte[] responseBuffer, Client client) throws IOException, SocketException {
         RegisterResponse response = (RegisterResponse) Unmarshaller.unmarshal(responseBuffer);
         if (! response.status.equals(Status.OK.label)) {
         	System.out.println(response.status);
@@ -308,21 +308,22 @@ public class Client {
         System.out.println(response.interval);
         System.out.println(response.content);
 
-        Long t = System.currentTimeMillis();
-        Long end = t + response.interval*60000;
-        while(System.currentTimeMillis() < end) {
+        long current = System.currentTimeMillis();
+        long end = current + response.interval*60000;
+        while(current < end) {
             try {
-                client.socket.setSoTimeout(Long.valueOf(end - t).intValue());
+                System.out.println("\nWaiting for notification messages...!");
+                client.socket.setSoTimeout(Long.valueOf(end - current).intValue());
                 byte[] buffer = client.receive();
                 response = (RegisterResponse) Unmarshaller.unmarshal(buffer);
-                System.out.println("\nNotification:");
+                System.out.println("\nRegistered notification:");
                 System.out.println(response.status);
                 System.out.println(response.interval);
                 System.out.println(response.content);
-            } catch (Exception se) {
+            } catch (SocketTimeoutException ste) {
             	System.out.println("Monitor interval passed");
-//                se.printStackTrace();
             }
+            current = System.currentTimeMillis();
         }
 
         client.socket.setSoTimeout(Constants.TIME_OUT);

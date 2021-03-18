@@ -163,7 +163,18 @@ public class Server {
 	                        String mess = manager.getNotifiedMessage(updatedFacility);
 	                        response = new RegisterResponse(IdGenerator.getNewId(), Status.OK.label, mess, info.getInterval());
 	                        buffer = Marshaller.marshal((RegisterResponse) response);
-	                        server.send(buffer, clientAddress, clientPort);
+                            
+                            int tries = 0;
+                            boolean sent = false;
+                            // re-try sending registered notification messages
+                            while (tries < Constants.MAX_TRIES && sent == false) {
+                                sent = server.send(buffer, clientAddress, clientPort);
+                                tries++;
+                                System.out.println("Retrying " + tries + "...!");
+                            }
+                            if (sent) {
+                                System.out.println("Send a registered notification message!");
+                            }
 	                    }
                     }
                     manager.setUpdatedFacility(null);
@@ -217,7 +228,7 @@ public class Server {
                 	buffer = Marshaller.marshal((ExtendResponse) response);
                 	this.send(buffer, address, port);
                 	break;
-                default: break;
+                default: return false;
             }
 
             handled = true;
@@ -226,13 +237,15 @@ public class Server {
         return handled;
     }
 
-    private void send(byte[] response, InetAddress clientAddress, int clientPort) throws IOException {
+    private boolean send(byte[] response, InetAddress clientAddress, int clientPort) throws IOException {
         // send response to client
         if (Math.random() < this.failProb) {
             System.out.println("Failed response! Server drop packet!");
+            return false;
         } else {
             DatagramPacket packet = new DatagramPacket(response, response.length, clientAddress, clientPort);
             this.socket.send(packet);
+            return true;
         }
     }
 
