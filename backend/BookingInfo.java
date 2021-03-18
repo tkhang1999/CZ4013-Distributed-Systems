@@ -1,8 +1,7 @@
 package backend;
 
-import java.io.Serializable;
 
-public class BookingInfo implements Serializable{
+public class BookingInfo {
 	private String id;
 	private WeekDay day;
 	private TimePeriod timePeriod;

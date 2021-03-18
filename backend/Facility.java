@@ -1,12 +1,11 @@
 package backend;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class Facility implements Serializable{
+public class Facility {
 	private String name;
 	public String getName() {
 		return name;
