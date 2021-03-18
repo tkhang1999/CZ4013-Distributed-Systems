@@ -64,13 +64,14 @@ public class Server {
                 InetAddress clientAddress = requestPacket.getAddress();
                 int clientPort = requestPacket.getPort();
 
+                System.out.println("request id: " + request.id + ", request type: " + request.type);
+
                 if (server.invocation == InvocationMethod.AT_MOST_ONCE) {
                     handled = server.handleDuplicateRequest(request, clientAddress, clientPort);
                 }
     
                 if (!handled) {
                     // get specific request based on request method
-                    System.out.println(request.type);
                     switch(RequestType.fromString(request.type)) {
                         case TEST:
                             TestRequest t = (TestRequest) request;
@@ -91,6 +92,7 @@ public class Server {
                             } catch (Exception e) {
                             	response = new AvailabilityResponse(a.id, Status.INVALID.label, invalid_input);
                             }
+                            server.requestResponseMap.put(request.id, response);
                             buffer = Marshaller.marshal((AvailabilityResponse) response);
                             server.send(buffer, clientAddress, clientPort);
                             break;
@@ -102,6 +104,7 @@ public class Server {
 		                    } catch (Exception e) {
 		                    	response = new BookResponse(b.id, Status.INVALID.label, invalid_input);
 		                    }
+                            server.requestResponseMap.put(request.id, response);
                             buffer = Marshaller.marshal((BookResponse) response);
                             server.send(buffer, clientAddress, clientPort);
                             break;
@@ -113,6 +116,7 @@ public class Server {
                             } catch (Exception e) {
                             	response = new ShiftResponse(s.id, Status.INVALID.label, invalid_input);
                             }
+                            server.requestResponseMap.put(request.id, response);
                             buffer = Marshaller.marshal((ShiftResponse) response);
                             server.send(buffer, clientAddress, clientPort);
                             break;
@@ -124,6 +128,7 @@ public class Server {
                             } catch (Exception e) {
                             	response = new RegisterResponse(r.id, Status.INVALID.label, invalid_input, 0);
                             }
+                            server.requestResponseMap.put(request.id, response);
                             buffer = Marshaller.marshal((RegisterResponse) response);
                             server.send(buffer, clientAddress, clientPort);
                             break;
@@ -135,6 +140,7 @@ public class Server {
                             } catch (Exception e) {
                             	response = new CancelResponse(c.id, Status.INVALID.label, invalid_input);
                             }
+                            server.requestResponseMap.put(request.id, response);
                             buffer = Marshaller.marshal((CancelResponse) response);
                             server.send(buffer, clientAddress, clientPort);
                             break;
@@ -146,6 +152,7 @@ public class Server {
                             } catch (Exception ex) {
                             	response = new ExtendResponse(e.id, Status.INVALID.label, invalid_input);
                             }
+                            server.requestResponseMap.put(request.id, response);
                             buffer = Marshaller.marshal((ExtendResponse) response);
                             server.send(buffer, clientAddress, clientPort);
                             break;
@@ -161,7 +168,7 @@ public class Server {
 	                        clientAddress = InetAddress.getByName(info.getClientIP());
 	                        clientPort = info.getPort();
 	                        String mess = manager.getNotifiedMessage(updatedFacility);
-	                        response = new RegisterResponse(IdGenerator.getNewId(), Status.OK.label, mess, info.getInterval());
+	                        response = new RegisterResponse(IdGenerator.getUnsavedId(), Status.OK.label, mess, info.getInterval());
 	                        buffer = Marshaller.marshal((RegisterResponse) response);
                             
                             int tries = 0;
@@ -170,7 +177,7 @@ public class Server {
                             while (tries < Constants.MAX_TRIES && sent == false) {
                                 sent = server.send(buffer, clientAddress, clientPort);
                                 tries++;
-                                System.out.println("Retrying " + tries + "...!");
+                                System.out.println("Try sending " + tries + "...!");
                             }
                             if (sent) {
                                 System.out.println("Send a registered notification message!");

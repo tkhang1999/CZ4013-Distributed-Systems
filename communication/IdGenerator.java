@@ -29,6 +29,20 @@ public class IdGenerator {
     }
 
     /**
+     * Get a random, new, and unsaved identifier
+     * @return An unique integer
+     */
+    public static int getUnsavedId() {
+        int id;
+
+        do {
+            id = randomId.nextInt(Integer.MAX_VALUE);
+        } while (generatedId.contains(id));
+
+        return id;
+    }
+
+    /**
      * Get a duplicate identifier. If there is no existing identifier, return -1
      * @return An integer
      */
