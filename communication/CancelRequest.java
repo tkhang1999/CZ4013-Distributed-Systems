@@ -10,5 +10,4 @@ public class CancelRequest extends Request{
         super(id, RequestType.CANCEL.type);
         this.bookingId = bookingId;
     }
-
 }

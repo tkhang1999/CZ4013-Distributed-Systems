@@ -230,7 +230,7 @@ public class FacilityManager {
 
 	public String getNotifiedMessage(String facilityName) {
 		facilityName = facilityName.toUpperCase();
-		String message = getAvailabilityInString(facilityName, new ArrayList(Arrays.asList(WeekDay.values())));
+		String message = getAvailabilityInString(facilityName, new ArrayList<>(Arrays.asList(WeekDay.values())));
 		return message;
 	}
 	
@@ -267,7 +267,7 @@ public class FacilityManager {
 		boolean success = false;
 		if (userBookingMap.containsKey(user)) {
 			List<BookingInfo> bookingInfoList = userBookingMap.get(user);
-			int index = 0;
+			// int index = 0;
 			for (BookingInfo info: bookingInfoList) {
 				if (info.getId().equals(bookingID)) {
 					Facility fac = getFacility(info.getFacilityName());
@@ -284,7 +284,7 @@ public class FacilityManager {
 					} else message = "Cannot extend due to unavailable time";
 					break;
 				}
-				index++;
+				// index++;
 			}
 		}
 		

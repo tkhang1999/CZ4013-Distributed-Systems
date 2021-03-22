@@ -53,7 +53,7 @@ public class Client {
         boolean end = false;
 
         while (!end) {
-            String services = "----------------------------------------------------------------\n" +
+            String services = "\n----------------------------------------------------------------\n" +
                 "Please choose a service by typing [0-6]:\n" +
                 "1: Query the availability of the facility\n" +
                 "2: Book a time slot at the facility\n" +
@@ -63,7 +63,7 @@ public class Client {
                 "6: Extend your booking\n" +
                 "0: Stop the client\n";
             System.out.println(services);
-    
+
             // read user's input for service type
             String input = sc.nextLine().trim();
             int serviceType = Integer.parseInt(input);
@@ -74,74 +74,74 @@ public class Client {
 
             switch (serviceType) {
                 case Constants.SAMPLE_SERVICE:
-                	try {
-                		requestBuffer = constructTestRequest(sc);
-                	} catch (Exception e) {
-                		System.out.println("Cannot construct request due to invalid input");
-                		break;
-                	}
+                    try {
+                        requestBuffer = constructTestRequest(sc);
+                    } catch (Exception e) {
+                        System.out.println("Cannot construct request due to invalid input");
+                        break;
+                    }
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleTestResponse(responseBuffer);
                     break;
                 case Constants.AVAILABILITY_SERVICE:
-                	try {
-	                    requestBuffer = constructAvailabilityRequest(sc);
-		            } catch (Exception e) {
-		        		System.out.println("Cannot construct request due to invalid input");
-		        		break;
-		        	}
+                    try {
+                        requestBuffer = constructAvailabilityRequest(sc);
+                    } catch (Exception e) {
+                        System.out.println("Cannot construct request due to invalid input");
+                        break;
+                    }
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleAvailabilityResponse(responseBuffer);
                     break;
                 case Constants.BOOK_SERVICE:
-                	try {
-                		requestBuffer = constructBookRequest(sc);
-                	} catch (Exception e) {
-                		System.out.println("Cannot construct request due to invalid input");
-                		break;
-                	}
+                    try {
+                        requestBuffer = constructBookRequest(sc);
+                    } catch (Exception e) {
+                        System.out.println("Cannot construct request due to invalid input");
+                        break;
+                    }
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleBookResponse(responseBuffer);
                     break;
                 case Constants.SHIFT_SERVICE:
-                	try {
-                		requestBuffer = constructShiftRequest(sc);
-                	} catch (Exception e) {
-                		System.out.println("Cannot construct request due to invalid input");
-                		break;
-                	}
+                    try {
+                        requestBuffer = constructShiftRequest(sc);
+                    } catch (Exception e) {
+                        System.out.println("Cannot construct request due to invalid input");
+                        break;
+                    }
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleShiftResponse(responseBuffer);
                     break;
                 case Constants.REGISTER_SERVICE:
-                	try {
-                		requestBuffer = constructRegisterRequest(sc);
-                	} catch (Exception e) {
-                		System.out.println("Cannot construct request due to invalid input");
-                		break;
-                	}
+                    try {
+                        requestBuffer = constructRegisterRequest(sc);
+                    } catch (Exception e) {
+                        System.out.println("Cannot construct request due to invalid input");
+                        break;
+                    }
                     responseBuffer = client.sendAndReceive(requestBuffer);
                     handleRegisterResponse(responseBuffer, client);
                     break;
                 case Constants.CANCEL_SERVICE:
-                	try {
-                		requestBuffer = constructCancelRequest(sc);
-                	} catch (Exception e) {
-                		System.out.println("Cannot construct request due to invalid input");
-                		break;
-                	}
-                	responseBuffer = client.sendAndReceive(requestBuffer);
-                	handleCancelResponse(responseBuffer);
+                    try {
+                        requestBuffer = constructCancelRequest(sc);
+                    } catch (Exception e) {
+                        System.out.println("Cannot construct request due to invalid input");
+                        break;
+                    }
+                    responseBuffer = client.sendAndReceive(requestBuffer);
+                    handleCancelResponse(responseBuffer);
                     break;
                 case Constants.EXTEND_SERVICE:
-                	try {
-                		requestBuffer = constructExtendRequest(sc);
-                	} catch (Exception e) {
-                		System.out.println("Cannot construct request due to invalid input");
-                		break;
-                	}
-                	responseBuffer = client.sendAndReceive(requestBuffer);
-                	handleExtendResponse(responseBuffer);
+                    try {
+                        requestBuffer = constructExtendRequest(sc);
+                    } catch (Exception e) {
+                        System.out.println("Cannot construct request due to invalid input");
+                        break;
+                    }
+                    responseBuffer = client.sendAndReceive(requestBuffer);
+                    handleExtendResponse(responseBuffer);
                     break;
                 case Constants.END_SERVICE:
                     end = true;
@@ -172,8 +172,8 @@ public class Client {
     private static byte[] constructAvailabilityRequest(Scanner sc) {
         System.out.println("Enter facility name: ");
         String facility = sc.nextLine().trim();
-    
-        String days = "----------------------------------------------------------------\n" +
+
+        String days = "\n----------------------------------------------------------------\n" +
         "Please choose one or multiple days:\n" +
             WeekDay.MONDAY.getIntValue() + ": " + WeekDay.MONDAY.toString() + "\n" +
             WeekDay.TUESDAY.getIntValue() + ": " + WeekDay.TUESDAY.toString() + "\n" +
@@ -242,17 +242,17 @@ public class Client {
 
         return buffer;
     }
-    
+
     private static byte[] constructCancelRequest(Scanner sc) {
-    	System.out.println("Enter booking id: ");
-    	String bookingId = sc.nextLine().trim();
-    	CancelRequest request = new CancelRequest(IdGenerator.getNewId(), bookingId);
+        System.out.println("Enter booking id: ");
+        String bookingId = sc.nextLine().trim();
+        CancelRequest request = new CancelRequest(IdGenerator.getNewId(), bookingId);
         byte[] buffer = Marshaller.marshal(request);
         return buffer;
     }
-    
+
     private static byte[] constructExtendRequest(Scanner sc) {
-    	System.out.println("Enter booking id: ");
+        System.out.println("Enter booking id: ");
         String bookingId = sc.nextLine().trim();
         System.out.println("sooner(0) or later(1): ");
         int sooner = Integer.parseInt(sc.nextLine().trim());
@@ -274,9 +274,9 @@ public class Client {
     private static void handleAvailabilityResponse(byte[] responseBuffer) {
         AvailabilityResponse response = (AvailabilityResponse) Unmarshaller.unmarshal(responseBuffer);
         if (! response.status.equals(Status.OK.label)) {
-        	System.out.println(response.status);
-        	System.out.println(response.content);
-        	return;
+            System.out.println(response.status);
+            System.out.println(response.content);
+            return;
         }
         System.out.println("\nFacility availability:");
         System.out.println(response.content);
@@ -299,13 +299,13 @@ public class Client {
     private static void handleRegisterResponse(byte[] responseBuffer, Client client) throws IOException, SocketException {
         RegisterResponse response = (RegisterResponse) Unmarshaller.unmarshal(responseBuffer);
         if (! response.status.equals(Status.OK.label)) {
-        	System.out.println(response.status);
-        	System.out.println(response.content);
-        	return;
+            System.out.println(response.status);
+            System.out.println(response.content);
+            return;
         }
         System.out.println("\nRegister status:");
         System.out.println(response.status);
-        System.out.println(response.interval);
+        System.out.println(response.interval + " minutes");
         System.out.println(response.content);
 
         long current = System.currentTimeMillis();
@@ -318,35 +318,35 @@ public class Client {
                 response = (RegisterResponse) Unmarshaller.unmarshal(buffer);
                 System.out.println("\nRegistered notification:");
                 System.out.println(response.status);
-                System.out.println(response.interval);
+                // System.out.println(response.interval);
                 System.out.println(response.content);
             } catch (SocketTimeoutException ste) {
-            	System.out.println("Monitor interval passed");
+                System.out.println("Monitor interval passed");
             }
             current = System.currentTimeMillis();
         }
 
         client.socket.setSoTimeout(Constants.TIME_OUT);
     }
-    
+
     private static void handleCancelResponse(byte[] responseBuffer) {
-    	CancelResponse response = (CancelResponse) Unmarshaller.unmarshal(responseBuffer);
-    	System.out.println("\nCancel status:");
-    	System.out.println(response.status);
-    	System.out.println(response.content);
+        CancelResponse response = (CancelResponse) Unmarshaller.unmarshal(responseBuffer);
+        System.out.println("\nCancel status:");
+        System.out.println(response.status);
+        System.out.println(response.content);
     }
-    
+
     private static void handleExtendResponse(byte[] responseBuffer) {
-    	ExtendResponse response = (ExtendResponse) Unmarshaller.unmarshal(responseBuffer);
-    	System.out.println("\nExtend status:");
-    	System.out.println(response.status);
-    	System.out.println(response.content);
+        ExtendResponse response = (ExtendResponse) Unmarshaller.unmarshal(responseBuffer);
+        System.out.println("\nExtend status:");
+        System.out.println(response.status);
+        System.out.println(response.content);
     }
 
     private void send(byte[] request) throws IOException {
         // send request to server
         if (Math.random() < this.failProb) {
-            System.out.println("Failed request! Client drop packet!");
+            System.out.println("Fail to request! Client drop packet!");
         } else {
             DatagramPacket packet = new DatagramPacket(request, request.length, this.address, this.serverPort);
             this.socket.send(packet);
