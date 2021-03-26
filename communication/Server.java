@@ -163,23 +163,27 @@ public class Server {
                     Hashtable<String, Set<RegisteredClientInfo>> mapFacilityUser = manager.getMapFacilityUser();
                     if (mapFacilityUser.containsKey(updatedFacility)) {
                         for (RegisteredClientInfo info : mapFacilityUser.get(updatedFacility)) {
-                            clientAddress = InetAddress.getByName(info.getClientIP());
-                            clientPort = info.getPort();
-                            String mess = manager.getNotifiedMessage(updatedFacility);
-                            response = new RegisterResponse(IdGenerator.getUnsavedId(), Status.OK.label, mess, info.getInterval());
-                            buffer = Marshaller.marshal((RegisterResponse) response);
-                            
-                            int tries = 0;
-                            boolean sent = false;
-                            // re-try sending registered notification messages
-                            while (tries < Constants.MAX_TRIES && sent == false) {
-                                tries++;
-                                System.out.println("Try sending a notification message " + tries + "...!");
-                                sent = server.send(buffer, clientAddress, clientPort);
-                            }
-                            if (!sent) {
-                                System.out.println("Fail to send a notification message!\n");
-                            }
+                        	try {
+	                            clientAddress = InetAddress.getByName(info.getClientIP());
+	                            clientPort = info.getPort();
+	                            String mess = manager.getNotifiedMessage(updatedFacility);
+	                            response = new RegisterResponse(IdGenerator.getUnsavedId(), Status.OK.label, mess, info.getInterval());
+	                            buffer = Marshaller.marshal((RegisterResponse) response);
+	                            
+	                            int tries = 0;
+	                            boolean sent = false;
+	                            // re-try sending registered notification messages
+	                            while (tries < Constants.MAX_TRIES && sent == false) {
+	                                tries++;
+	                                System.out.println("Try sending a notification message " + tries + "...!");
+	                                sent = server.send(buffer, clientAddress, clientPort);
+	                            }
+	                            if (!sent) {
+	                                System.out.println("Fail to send a notification message!\n");
+	                            }
+                        	} catch (Exception e) {
+//                        		e.printStackTrace();
+                        	}
                         }
                     }
                     manager.setUpdatedFacility(null);
@@ -188,7 +192,7 @@ public class Server {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 end = true;
-            }
+            } catch (Exception e) {}
         }
 
         server.end();
