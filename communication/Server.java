@@ -164,6 +164,7 @@ public class Server {
                     if (mapFacilityUser.containsKey(updatedFacility)) {
                         for (RegisteredClientInfo info : mapFacilityUser.get(updatedFacility)) {
                         	try {
+                        		if (System.currentTimeMillis()/1000.d - info.getCreatedTime() >= info.getInterval()) continue;
 	                            clientAddress = InetAddress.getByName(info.getClientIP());
 	                            clientPort = info.getPort();
 	                            String mess = manager.getNotifiedMessage(updatedFacility);

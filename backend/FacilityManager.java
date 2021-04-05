@@ -73,13 +73,15 @@ public class FacilityManager {
 			public void run() {
 				while (true) {
 					if (mapFacilityUser != null) {
-						for (Map.Entry<String, Set<RegisteredClientInfo>> entry: mapFacilityUser.entrySet()) {
-							for (RegisteredClientInfo info: entry.getValue()) {
-								if (System.currentTimeMillis()/1000.d - info.getCreatedTime() > info.getInterval()) {
-									entry.getValue().remove(info);
+						try {
+							for (Map.Entry<String, Set<RegisteredClientInfo>> entry: mapFacilityUser.entrySet()) {
+								for (RegisteredClientInfo info: entry.getValue()) {
+									if (System.currentTimeMillis()/1000.d - info.getCreatedTime() > info.getInterval()) {
+										entry.getValue().remove(info);
+									}
 								}
 							}
-						}
+						} catch(Exception e) {}
 					}
 				}
 			};
